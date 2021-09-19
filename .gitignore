@@ -1,6 +1,7 @@
 # our gitignores
 schedule/
 __pycache__/
+**/*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
