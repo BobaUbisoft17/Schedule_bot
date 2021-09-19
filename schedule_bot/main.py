@@ -30,8 +30,3 @@ async def send_schedule(message: Message):
 		get_schedule(message.text),
 		reply_markup=kb.markup,
 		)
-
-
-"""@dp.message_handler(commands=["help"], state="*")
-async def send_help(message):
-    await message.answer("Sorry")"""

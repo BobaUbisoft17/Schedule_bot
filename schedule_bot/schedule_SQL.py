@@ -26,5 +26,3 @@ def init_db(force: bool):
     connect.close()
 
 init_db(True)
-"""if __name__ == "__main__":
-    init_db(True)"""
