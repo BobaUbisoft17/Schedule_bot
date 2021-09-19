@@ -10,8 +10,8 @@ PATH = "csv_schedule/*.csv"
 
 @dataclass
 class Schedule:
-    class_name: str
-    schedule_and_bells: str
+    clas: str
+    schedule: str
 
 
 def get_csv_files(path):
@@ -59,8 +59,8 @@ def give_to_class():
         for i in get_tables(file):
             schedule.append(
                 Schedule(
-                    class_name=i[0],
-                    schedule_and_bells=i[-1],
+                    clas=i[0],
+                    schedule=i[-1],
                 )
             )
         os.remove(file)

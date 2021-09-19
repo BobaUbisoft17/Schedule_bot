@@ -24,9 +24,9 @@ def get_schedule_link(html):
 
 def get_file(path_and_link):
 	path, link = (i for i in path_and_link) 
-	r = requests.get(link)
+	response = requests.get(link)
 	with open(PATH + path, "wb") as schedule:
-		schedule.write(r.content)
+		schedule.write(response.content)
 	convert(path)
 
 
