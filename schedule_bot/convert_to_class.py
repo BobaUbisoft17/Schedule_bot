@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import os
 import csv
 import glob
+from typing import List
 
 
 PATH = "csv_schedule/*.csv"
@@ -14,12 +15,12 @@ class Schedule:
     schedule: str
 
 
-def get_csv_files(path):
+def get_csv_files(path: list) -> List[str]:
     csv_files = glob.glob(path)
     return csv_files
 
 
-def get_tables(file):
+def get_tables(file: str) -> List[List[str, str]]:
     with open(file, encoding="utf-8") as table:
         table_reader = csv.reader(table, delimiter=";")
         list_schedules = list(table_reader)
@@ -53,7 +54,7 @@ def get_tables(file):
         return schedule_with_classes
 
 
-def give_to_class():
+def give_to_class() -> List[Schedule]:
     schedule = []
     for file in get_csv_files(PATH):
         for i in get_tables(file):

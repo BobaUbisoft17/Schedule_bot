@@ -1,6 +1,6 @@
 import convertapi
 
-def convert(filename):
+def convert(filename: str):
     convertapi.api_secret = 'CL1X36TPQhqkEVKa'
     convertapi.convert('csv', {
         'File': 'C:/Users/Udich/schedule_bot/csv_schedule/' + filename,

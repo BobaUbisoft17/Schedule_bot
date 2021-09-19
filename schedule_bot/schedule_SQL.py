@@ -3,7 +3,7 @@ import sqlite3
 from convert_to_class import give_to_class
 
 
-def init_db(force):
+def init_db(force: bool):
     db = sqlite3.connect("schedule.db")
     cursor = db.cursor()
     if force:

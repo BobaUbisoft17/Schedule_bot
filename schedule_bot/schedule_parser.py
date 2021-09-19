@@ -1,4 +1,6 @@
+from typing import Optional, Tuple
 import requests
+from requests import Response
 from bs4 import BeautifulSoup
 from schedule_bot import convert
 
@@ -10,20 +12,20 @@ HEADERS = {
 PATH = 'csv_schedule/'
 
 
-def get_html(url, params=None):
+def get_html(url: str, params: Optional[dict] = None) -> Response:
 	r = requests.get(url, headers=HEADERS, params=params)
 	return r
 
 
-def get_schedule_link(html):
+def get_schedule_link(html: str) -> Tuple[str, str]:
 	soup = BeautifulSoup(html, 'lxml')
 	schedules_and_link = {}
 	schedules = soup.find_all('a', class_='at_url')[-1]
 	return schedules.get('href').split("/")[-1], schedules.get('href')
 
 
-def get_file(path_and_link):
-	path, link = (i for i in path_and_link) 
+def get_file(path_and_link: Tuple[str, str]):
+	path, link = (i for i in path_and_link)
 	response = requests.get(link)
 	with open(PATH + path, "wb") as schedule:
 		schedule.write(response.content)
