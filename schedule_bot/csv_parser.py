@@ -39,7 +39,7 @@ def get_classes(list_of_classes: list):
 
 
 def get_schedule_bell(list_schedules: list):
-    """Функция для получения расписания звонков."""
+    """Получение расписания перемен."""
     schedule_bell = []
     for i in range(len(list_schedules)):
         schedule_bell.append(list_schedules[i][1])
