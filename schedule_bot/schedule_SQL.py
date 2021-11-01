@@ -1,6 +1,6 @@
 "Mодуль для записи распиания в SQL таблицу"
 import sqlite3
-from convert_to_class import give_to_class
+from csv_parser import give_to_class
 
 
 def init_db(force: bool):
@@ -23,6 +23,4 @@ def init_db(force: bool):
         )
     db.commit()
     cursor.close()
-    connect.close()
-
-init_db(True)
+    db.close()
