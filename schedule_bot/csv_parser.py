@@ -16,13 +16,13 @@ class Schedule:
 
 
 def get_csv_files(path: list) -> List[str]:
-    """Функция для полученеия всех .csv файлов, возвращает список .csv файлов"""
+    """Полученеия .csv файлов в текущей директории."""
     csv_files = glob.glob(path)
     return csv_files
 
 
 def get_tables(file: str) -> List[Tuple[str, str]]:
-    """Функция для чтения информации из .csv файлов"""
+    """Получение расписаний классов из .csv файла."""
     with open(file, encoding="utf-8") as table:
         table_reader = csv.reader(table, delimiter=";")
         list_schedules = list(table_reader)
@@ -34,7 +34,7 @@ def get_tables(file: str) -> List[Tuple[str, str]]:
 
 
 def get_classes(list_of_classes: list):
-    """Функция для извлечения названия классов."""
+    """Извлечение названий классов."""
     return [clas.replace(' ', '') for clas in list_of_classes if '(' in clas or ')' in clas]
 
 
@@ -48,7 +48,7 @@ def get_schedule_bell(list_schedules: list):
 
 
 def get_schedule(number_of_classes: int, schedules: list):
-    """Функция для рапспределения расписания по классам"""
+    """Распределение расписания по классам."""
     schedule_for_all_classes = []
     for number in range(number_of_classes):
         schedule_for_one_clas = []
@@ -63,7 +63,7 @@ def get_schedule(number_of_classes: int, schedules: list):
 
 
 def clas_schedule_bell_consolidation(classes: list, bells: list, schedules: list):
-    """Функция для объединения классов, звонков и расписания"""
+    """Объединение классов, звонков и расписания."""
     list_of_schedules = []
     for clas in range(len(classes)):
         full_schedule = classes[clas] + '\n'
@@ -71,10 +71,10 @@ def clas_schedule_bell_consolidation(classes: list, bells: list, schedules: list
             full_schedule += f"{bell} {schedule}\n"
         list_of_schedules.append([classes[clas], full_schedule])
     return list_of_schedules
-    
+
 
 def give_to_class() -> List[Schedule]:
-    """Функция для переноса информации из .csv файла в дата класс"""
+    """Получение расписаний всех классов из .csv файлов."""
     schedule = []
     for file in get_csv_files(PATH):
         for table in get_tables(file):
