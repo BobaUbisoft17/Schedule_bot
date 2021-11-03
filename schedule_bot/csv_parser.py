@@ -1,8 +1,7 @@
-from dataclasses import dataclass
-
-import os
 import csv
 import glob
+import os
+from dataclasses import dataclass
 from typing import List, Tuple
 
 
@@ -10,79 +9,98 @@ PATH = "*.csv"
 
 
 @dataclass
-class Schedule:
-    clas: str
+class ClassSchedule:
+    class_name: str
     schedule: str
 
 
-def get_csv_files(path: list) -> List[str]:
+def get_classes_schedules() -> List[ClassSchedule]:
+    """Получение расписаний всех классов из .csv файлов."""
+    classes_schedules = []
+    for file in _get_csv_files(PATH):
+        for table in _fetch_classes_schedules_from_csv(file):
+            classes_schedules.append(
+                ClassSchedule(
+                    class_name=table[0],
+                    schedule=table[-1],
+                )
+            )
+        os.remove(file)
+
+    return classes_schedules
+
+
+def _get_csv_files(path: list) -> List[str]:
     """Полученеия .csv файлов в текущей директории."""
     csv_files = glob.glob(path)
     return csv_files
 
 
-def get_tables(file: str) -> List[Tuple[str, str]]:
+def _fetch_classes_schedules_from_csv(filepath: str) -> List[Tuple[str, str]]:
     """Получение расписаний классов из .csv файла."""
-    with open(file, encoding="utf-8") as table:
-        table_reader = csv.reader(table, delimiter=";")
-        list_schedules = list(table_reader)
-        classes_names, *list_schedules = list_schedules
-        classes_names = get_classes(classes_names)
-        schedule_bell, list_schedules = get_schedule_bell(list_schedules)
-        schedule = get_schedule(len(classes_names), list_schedules)
-        return clas_schedule_bell_consolidation(classes_names, schedule_bell, schedule)
+    with open(filepath, encoding="utf-8") as f:
+        schedule = list(csv.reader(f, delimiter=";"))
+
+    classes_names_row, *schedule = schedule
+    classes_names = _fetch_classes_names(classes_names_row)
+    schedule_bells, schedule = _get_schedule_bells(schedule)
+    classes_schedules = _split_schedule_by_classes(
+        len(classes_names), schedule
+    )
+
+    return _join_classes_schedule_with_bells(
+        classes_names, schedule_bells, classes_schedules
+    )
 
 
-def get_classes(list_of_classes: list):
+def _fetch_classes_names(classes_names_row: list):
     """Извлечение названий классов."""
-    return [clas.replace(' ', '') for clas in list_of_classes if '(' in clas or ')' in clas]
+    return [
+        cell.replace(" ", "")
+        for cell in classes_names_row
+        if "(" in cell or ")" in cell
+    ]
 
 
-def get_schedule_bell(list_schedules: list):
+def _get_schedule_bells(schedule: list):
     """Получение расписания перемен."""
-    schedule_bell = []
-    for i in range(len(list_schedules)):
-        schedule_bell.append(list_schedules[i][1])
-        list_schedules[i] = list_schedules[i][2:]
-    return schedule_bell, list_schedules
+    schedule_bells = []
+    for i in range(len(schedule)):
+        schedule_bells.append(schedule[i][1])
+        schedule[i] = schedule[i][2:]
+    return schedule_bells, schedule
 
 
-def get_schedule(number_of_classes: int, schedules: list):
+def _split_schedule_by_classes(classes_count: int, schedules: list):
     """Распределение расписания по классам."""
-    schedule_for_all_classes = []
-    for number in range(number_of_classes):
-        schedule_for_one_clas = []
+    classes_schedules = []
+    for i in range(classes_count):
+        class_schedule = []
         for schedule in schedules:
-            if ("классный час" in schedule or "Классный час" in schedule) and len(schedule) == 1:
-                schedule *= number
-            if schedule[number] == "" or schedule[number] == "-":
-                schedule[number] = "окно"
-            schedule_for_one_clas.append(schedule[number])
-        schedule_for_all_classes.append(schedule_for_one_clas)
-    return schedule_for_all_classes
+            if (
+                ("классный час" in schedule or "Классный час" in schedule)
+                and len(schedule) == 1
+            ):
+                schedule *= i
+            if schedule[i] == "" or schedule[i] == "-":
+                schedule[i] = "окно"
+            class_schedule.append(schedule[i])
+        classes_schedules.append(class_schedule)
+
+    return classes_schedules
 
 
-def clas_schedule_bell_consolidation(classes: list, bells: list, schedules: list):
+def _join_classes_schedule_with_bells(
+    classes_schedules: list, bells: list, schedules: list
+):
     """Объединение классов, звонков и расписания."""
-    list_of_schedules = []
-    for clas in range(len(classes)):
-        full_schedule = classes[clas] + '\n'
-        for bell, schedule in zip(bells, schedules[clas]):
+    classes_schedules_with_bells = []
+    for i in range(len(classes_schedules)):
+        full_schedule = classes_schedules[i] + "\n"
+        for bell, schedule in zip(bells, schedules[i]):
             full_schedule += f"{bell} {schedule}\n"
-        list_of_schedules.append([classes[clas], full_schedule])
-    return list_of_schedules
+        classes_schedules_with_bells.append(
+            [classes_schedules[i], full_schedule]
+        )
 
-
-def give_to_class() -> List[Schedule]:
-    """Получение расписаний всех классов из .csv файлов."""
-    schedule = []
-    for file in get_csv_files(PATH):
-        for table in get_tables(file):
-            schedule.append(
-                Schedule(
-                    clas=table[0],
-                    schedule=table[-1],
-                )
-            )
-        os.remove(file)
-    return schedule
+    return classes_schedules_with_bells
