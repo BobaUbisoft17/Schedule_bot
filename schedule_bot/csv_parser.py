@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 
-PATH = "*.csv"
+PATH = "schedule_bot/*.csv"
 
 
 @dataclass
@@ -56,7 +56,7 @@ def _fetch_classes_schedules_from_csv(filepath: str) -> List[Tuple[str, str]]:
 def _fetch_classes_names(classes_names_row: list):
     """Извлечение названий классов."""
     return [
-        cell.replace(" ", "")
+        cell.replace(" ", "").split('(')[0]
         for cell in classes_names_row
         if "(" in cell or ")" in cell
     ]
