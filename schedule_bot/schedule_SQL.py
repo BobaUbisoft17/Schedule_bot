@@ -1,6 +1,6 @@
 "Mодуль для записи распиания в SQL таблицу"
 import sqlite3
-from csv_parser import give_to_class
+from csv_parser import get_classes_schedules
 
 
 def init_db(force: bool):
@@ -17,9 +17,9 @@ def init_db(force: bool):
     )
 
     db.commit()
-    for schedule in give_to_class():
+    for schedule in get_classes_schedules():
         cursor.execute(
-            "INSERT INTO schedule (class, schedule) VALUES (?, ?)", (schedule.clas, schedule.schedule)
+            "INSERT INTO schedule (class, schedule) VALUES (?, ?)", (schedule.class_name, schedule.schedule)
         )
     db.commit()
     cursor.close()
