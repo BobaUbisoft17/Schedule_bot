@@ -5,7 +5,7 @@ from vkwave.bots.core.dispatching import filters
 from keyboard import kb_get_schedule, kb_choice_parallel, kb_unsubscribe_from_mailing_list, kb_subscribe_to_newsletter, parallel, CLASSES_NAMES, give_parallel
 from vkwave.bots.utils.uploaders import PhotoUploader
 from file_service import get_schedule_class
-from database_users import add_id, check_id, del_id
+from database_users import add_id, check_id, del_id, create_database
 from schedule_parser import parse
 import asyncio
 
@@ -26,7 +26,7 @@ async def greetings(event: SimpleBotEvent) -> str:
 
 @bot.message_handler(filters.TextFilter("настроить уведомления"))
 async def customize_notifications(event: SimpleBotEvent):
-    if check_id(event.object.object.message.peer_id):
+    if await check_id(event.object.object.message.peer_id):
         await event.answer("Отписаться от рассылки?", keyboard=kb_unsubscribe_from_mailing_list.get_keyboard())
     else:
         await event.answer("Подписаться на рассылку?", keyboard=kb_subscribe_to_newsletter.get_keyboard())
@@ -34,7 +34,7 @@ async def customize_notifications(event: SimpleBotEvent):
 
 @bot.message_handler(filters.TextFilter("подписаться на рассылку"))
 async def subscribe_newsletter(event: SimpleBotEvent):
-    if check_id(event.object.object.message.peer_id):
+    if await check_id(event.object.object.message.peer_id):
         await event.answer("Вы уже подписаны", keyboard=kb_unsubscribe_from_mailing_list.get_keyboard())
     else:
         await add_id(event.object.object.message.peer_id)
@@ -44,7 +44,7 @@ async def subscribe_newsletter(event: SimpleBotEvent):
 
 @bot.message_handler(filters.TextFilter("отписаться от рассылки"))
 async def unsubscribe_from_mailing_list(event: SimpleBotEvent):
-    if check_id(event.object.object.message.peer_id):
+    if await check_id(event.object.object.message.peer_id):
         await del_id(event.object.object.message.peer_id)
         await event.answer("Вы успешно отписались от рассылки", keyboard=kb_subscribe_to_newsletter.get_keyboard())
     else:
@@ -111,6 +111,7 @@ def main():
        создвёт доп. процесс."""
     loop = asyncio.get_event_loop_policy().get_event_loop()
     add_parser_to_loop(loop)
+    create_database()
     bot.run_forever(loop=loop)
 
 def add_parser_to_loop(loop):
