@@ -39,7 +39,11 @@ kb_get_schedule.add_text_button("Узнать расписание", color=Butto
 kb_get_schedule.add_row()
 kb_get_schedule.add_text_button("Настроить уведомления", color=ButtonColor.SECONDARY)
 kb_subscribe_to_newsletter.add_text_button("Подписаться на рассылку", color=ButtonColor.PRIMARY)
+kb_subscribe_to_newsletter.add_row()
+kb_subscribe_to_newsletter.add_text_button("назад", color=ButtonColor.NEGATIVE)
 kb_unsubscribe_from_mailing_list.add_text_button("Отписаться от рассылки", color=ButtonColor.PRIMARY)
+kb_unsubscribe_from_mailing_list.add_row()
+kb_unsubscribe_from_mailing_list.add_text_button("назад", color=ButtonColor.NEGATIVE)
 
 
 for i in range(len(parallel)):
