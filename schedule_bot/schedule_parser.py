@@ -59,7 +59,11 @@ async def get_file(filename_and_link: Tuple[str, str]):
 async def parse(bot):
 	"""Проверка ответа сервера и запись данных в бд."""
 	while True:
-		await asyncio.sleep(1800)
+		csv_files = glob.glob(PATH + "*.pdf")
+		if csv_files == []:
+			asyncio.sleep(1)
+		else:
+			await asyncio.sleep(1800)
 		html = await get_html(URL)
 		if html.status_code == 200:
 			bools, filename = await get_file(await get_link_and_filename(html.text))
