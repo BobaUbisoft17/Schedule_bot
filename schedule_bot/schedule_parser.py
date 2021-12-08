@@ -20,14 +20,18 @@ PATH = "schedule_bot/schedule_tables/"
 async def check_for_innovation(filename: str):
 	csv_files = glob.glob(PATH + "*.pdf")
 	if csv_files == []:
-		return True
+		return True, "New"
 	else:
 		for file in csv_files:
 			if file.split("\\")[-1] != filename:
-				os.remove(file)
-				return True
+				if file.split("\\")[-1] in filename:
+					os.remove(file)
+					return True, "Update"
+				else:
+					os.remove(file)
+					return True, "New"
 			else:
-				return False
+				return False, "No"
 
 
 async def get_html(url: str, params: Optional[dict] = None) -> Response:
@@ -46,14 +50,15 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
 async def get_file(filename_and_link: Tuple[str, str]):
 	"""Сохранение файла с расписанием."""
 	filename, link = (i for i in filename_and_link)
-	if await check_for_innovation(filename):
+	bools, status = await check_for_innovation(filename)
+	if bools:
 		response = requests.get(link)
 		with open(PATH + filename, "wb") as schedule:
 			schedule.write(response.content)
 		await convert(filename)
-		return True, filename
+		return True, filename, status
 	else:
-		return False, False
+		return False, False, status
 
 
 async def parse(bot):
@@ -66,9 +71,13 @@ async def parse(bot):
 			await asyncio.sleep(1800)
 		html = await get_html(URL)
 		if html.status_code == 200:
-			bools, filename = await get_file(await get_link_and_filename(html.text))
+			bools, filename, status = await get_file(await get_link_and_filename(html.text))
 			if bools:
 				await make_image(filename.split())
-				for peer_id in get_id():
-					await bot.api_context.messages.send(peer_id=peer_id, message="Появилось новое расписание", random_id=0)
+				if status == "Update":
+					for peer_id in get_id():
+						await bot.api_context.messages.send(peer_id=peer_id, message="Появилось обновлённое расписание", random_id=0)
+				elif status == "New":
+					for peer_id in get_id():
+						await bot.api_context.messages.send(peer_id=peer_id, message="Появилось новое расписание", random_id=0)
 
