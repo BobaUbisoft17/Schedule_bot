@@ -1,7 +1,7 @@
 import sqlite3
 
 
-def add_id(peer_id):
+async def add_id(peer_id):
     db = sqlite3.connect("users_id.db")
     cursor = db.cursor()
 
@@ -27,22 +27,24 @@ def add_id(peer_id):
     db.close()
 
 
-def del_id(peer_id):
+async def del_id(peer_id):
     db = sqlite3.connect("users_id.db")
     cursor = db.cursor()
 
     cursor.execute("SELECT * FROM users_id WHERE id=?", [peer_id])
     if cursor.fetchone() is None:
-        return "Вы не подписаны на рассылку"
+        cursor.close()
+        db.close()
+        return False
     else:
         cursor.execute("DELETE FROM users_id WHERE id=?", [peer_id])
         db.commit()
+        cursor.close()
+        db.close()
+        return True
 
-    cursor.close()
-    db.close()
 
-
-def get_id():
+async def get_id():
     db = sqlite3.connect("users_id.db")
     cursor = db.cursor()
 
@@ -53,6 +55,17 @@ def get_id():
     return users_id
 
 
-"""def check_id(peer_id):
+async def check_id(peer_id):
     db = sqlite3.connect("users_id.db")
-    cursor = db.cursor()"""
+    cursor = db.cursor()
+
+    cursor.execute("SELECT * FROM users_id WHERE id=?", [peer_id])
+    if cursor.fetchone() is None:
+        cursor.close()
+        db.close()
+        return False
+    else:
+        cursor.close()
+        db.close()
+        return True
+    
