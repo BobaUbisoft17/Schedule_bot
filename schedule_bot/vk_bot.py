@@ -78,10 +78,3 @@ def main():
 
 def add_parser_to_loop(loop):
     loop.create_task(parse(bot))
-
-
-main()
-"""if __name__ == '__main__':
-    while True:
-        asyncio.run(parse())"""
-
