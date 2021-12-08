@@ -66,7 +66,7 @@ async def parse(bot):
 	while True:
 		csv_files = glob.glob(PATH + "*.pdf")
 		if csv_files == []:
-			asyncio.sleep(1)
+			await asyncio.sleep(1)
 		else:
 			await asyncio.sleep(1800)
 		html = await get_html(URL)
@@ -75,9 +75,9 @@ async def parse(bot):
 			if bools:
 				await make_image(filename.split())
 				if status == "Update":
-					for peer_id in get_id():
+					for peer_id in await get_id():
 						await bot.api_context.messages.send(peer_id=peer_id, message="Появилось обновлённое расписание", random_id=0)
 				elif status == "New":
-					for peer_id in get_id():
+					for peer_id in await get_id():
 						await bot.api_context.messages.send(peer_id=peer_id, message="Появилось новое расписание", random_id=0)
 
