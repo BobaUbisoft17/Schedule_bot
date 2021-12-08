@@ -26,6 +26,12 @@ async def greetings(event: SimpleBotEvent) -> str:
 
 @bot.message_handler(filters.TextFilter("настроить уведомления"))
 async def customize_notifications(event: SimpleBotEvent):
+    """Функция для ответа на сообщение 'Настроить уведомления'."""
+
+    """Фильтрует сообщения и отвечает только на 'Настроить уведомления',
+       если пользователя нет в базе данных, то возвращает текстовое сообщение и 
+       клавиатуру с кнопкой 'Подписаться на рассылку', 
+       иначе возвращает текстовое сообщение и клавиатуру с кнопкой 'Отписаться от рассылки'"""
     if await check_id(event.object.object.message.peer_id):
         await event.answer("Отписаться от рассылки?", keyboard=kb_unsubscribe_from_mailing_list.get_keyboard())
     else:
@@ -34,6 +40,11 @@ async def customize_notifications(event: SimpleBotEvent):
 
 @bot.message_handler(filters.TextFilter("подписаться на рассылку"))
 async def subscribe_newsletter(event: SimpleBotEvent):
+    """Функция для ответа на сообщение 'Подписаться на рассылку'."""
+
+    """Фильтрует сообщения и отвечает только на 'Подписаться на рассылку',
+       возвращает текстовое сообщение, зависящие от наличия пользователя в бд и 
+       клавиатуру с кнопкой 'Отписаться от рассылки'"""
     if await check_id(event.object.object.message.peer_id):
         await event.answer("Вы уже подписаны", keyboard=kb_unsubscribe_from_mailing_list.get_keyboard())
     else:
@@ -44,6 +55,11 @@ async def subscribe_newsletter(event: SimpleBotEvent):
 
 @bot.message_handler(filters.TextFilter("отписаться от рассылки"))
 async def unsubscribe_from_mailing_list(event: SimpleBotEvent):
+    """Функция для ответа на сообщение 'Отписаться от рассылки'."""
+
+    """Фильтрует сообщения и отвечает только на 'Отписаться от рассылки',
+       возвращает текстовое сообщение, зависящие от наличия пользователя в бд и 
+       клавиатуру с кнопкой 'Подписаться на рассылку'"""
     if await check_id(event.object.object.message.peer_id):
         await del_id(event.object.object.message.peer_id)
         await event.answer("Вы успешно отписались от рассылки", keyboard=kb_subscribe_to_newsletter.get_keyboard())
@@ -100,6 +116,7 @@ async def back(event: SimpleBotEvent):
 
 @bot.message_handler()
 async def back(event: SimpleBotEvent):
+    """Функция для обработки сообщений, на которые не настроены фильтры"""
     await event.answer("Я вас не понимаю")
 
 
