@@ -1,7 +1,7 @@
 import sqlite3
 
 
-async def add_id(peer_id):
+def create_database():
     db = sqlite3.connect("users_id.db")
     cursor = db.cursor()
 
@@ -10,6 +10,14 @@ async def add_id(peer_id):
     )"""
     )
     db.commit()
+    cursor.close()
+    db.close()
+
+
+async def add_id(peer_id):
+    db = sqlite3.connect("users_id.db")
+    cursor = db.cursor()
+    
     cursor.execute("SELECT * FROM users_id WHERE id=?", [peer_id])
     if cursor.fetchone() is None:
         cursor.execute(
