@@ -31,8 +31,17 @@ CLASSES_NAMES = [
 kb_get_schedule = Keyboard(one_time=True)
 kb_choice_parallel = Keyboard(one_time=True)
 kb_choice_class = Keyboard(one_time=True)
+kb_subscribe_to_newsletter = Keyboard(one_time=True)
+kb_unsubscribe_from_mailing_list = Keyboard(one_time=True)
+
 
 kb_get_schedule.add_text_button("Узнать расписание", color=ButtonColor.POSITIVE)
+kb_get_schedule.add_row()
+kb_get_schedule.add_text_button("Настроить уведомления", color=ButtonColor.SECONDARY)
+kb_subscribe_to_newsletter.add_text_button("Подписаться на рассылку", color=ButtonColor.PRIMARY)
+kb_unsubscribe_from_mailing_list.add_text_button("Отписаться от рассылки", color=ButtonColor.PRIMARY)
+
+
 for i in range(len(parallel)):
 	if (i + 1) % 3 == 0:
 		kb_choice_parallel.add_row()
