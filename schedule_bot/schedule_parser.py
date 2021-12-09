@@ -10,11 +10,14 @@ import glob
 import os
 
 URL = 'https://s11018.edu35.ru/obuchayushchimsya/raspisanie-urokov'
+PROXIES = {
+	"http" : "http://188.130.255.11:80"
+}
 HEADERS = {
 	'user-agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
 	'accept' : '*/*',
 }
-PATH = "schedule_bot/schedule_tables/"
+PATH = "schedule_tables/"
 
 
 async def check_for_innovation(filename: str):
@@ -36,7 +39,7 @@ async def check_for_innovation(filename: str):
 
 async def get_html(url: str, params: Optional[dict] = None) -> Response:
 	"""Получение кода страницы."""
-	r = requests.get(url, headers=HEADERS, params=params)
+	r = requests.get(url, headers=HEADERS, proxies=PROXIES, params=params)
 	return r
 
 

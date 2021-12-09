@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 
-PATH = "schedule_bot/schedule_tables/*.csv"
+PATH = "schedule_tables/*.csv"
 
 
 @dataclass

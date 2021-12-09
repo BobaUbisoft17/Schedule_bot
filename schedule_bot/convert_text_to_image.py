@@ -4,7 +4,7 @@ import os
 import glob
 
 
-PATH = "schedule_bot/schedule_image/"
+PATH = "schedule_image/"
 
 
 async def del_img():
@@ -40,7 +40,7 @@ async def make_image(date):
         out_2 = Image.new("RGB", (1442, 400), "white")
         background = ImageDraw.Draw(out)
         add_blocks = ImageDraw.Draw(out_2)
-        add_blocks.multiline_text((430, 200), f"{date}\n{class_name}", font=font_to_heading, fill="grey", anchor="ms")
+        add_blocks.multiline_text((430, 200), f"{date}\n{class_name}", font=font_to_heading, fill="grey", anchor="ms", spacing=25)
         out.paste(out_2, (0, 0))
         count_hight = 400
         if len(list_schedule) == 8:
