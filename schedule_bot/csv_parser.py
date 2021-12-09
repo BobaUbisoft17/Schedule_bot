@@ -21,11 +21,7 @@ async def get_classes_schedules() -> List[ClassSchedule]:
     for file in await _get_csv_files(PATH):
         for table in await _fetch_classes_schedules_from_csv(file):
             classes_schedules.append(
-                ClassSchedule(
-                    class_name=table[0],
-                    schedule=table[1],
-                    bells=table[-1]
-                )
+                ClassSchedule(class_name=table[0], schedule=table[1], bells=table[-1])
             )
         os.remove(file)
     return classes_schedules
@@ -45,9 +41,7 @@ async def _fetch_classes_schedules_from_csv(filepath: str) -> List[Tuple[str, st
     classes_names_row, *schedule = schedule
     classes_names = await _fetch_classes_names(classes_names_row)
     schedule_bells, schedule = await _get_schedule_bells(schedule)
-    classes_schedules = await _split_schedule_by_classes(
-        len(classes_names), schedule
-    )
+    classes_schedules = await _split_schedule_by_classes(len(classes_names), schedule)
 
     return await _join_classes_schedule_with_bells(
         classes_names, schedule_bells, classes_schedules
@@ -90,10 +84,9 @@ async def _split_schedule_by_classes(classes_count: int, schedules: list):
     for i in range(classes_count):
         class_schedule = []
         for schedule in schedules:
-            if (
-                ("классный час" in schedule or "Классный час" in schedule)
-                and len(schedule) == 1
-            ):
+            if ("классный час" in schedule or "Классный час" in schedule) and len(
+                schedule
+            ) == 1:
                 schedule *= len(classes_count)
             if schedule[i] == "" or schedule[i] == "-":
                 schedule[i] = "нет урока"

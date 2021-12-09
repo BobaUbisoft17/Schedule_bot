@@ -2,7 +2,15 @@ from config import VKBOTTOKEN
 import logging
 from vkwave.bots import SimpleLongPollBot, SimpleBotEvent
 from vkwave.bots.core.dispatching import filters
-from keyboard import kb_get_schedule, kb_choice_parallel, kb_unsubscribe_from_mailing_list, kb_subscribe_to_newsletter, parallel, CLASSES_NAMES, give_parallel
+from keyboard import (
+    kb_get_schedule,
+    kb_choice_parallel,
+    kb_unsubscribe_from_mailing_list,
+    kb_subscribe_to_newsletter,
+    parallel,
+    CLASSES_NAMES,
+    give_parallel,
+)
 from vkwave.bots.utils.uploaders import PhotoUploader
 from file_service import get_schedule_class
 from database_users import add_id, check_id, del_id, create_database
@@ -33,9 +41,15 @@ async def customize_notifications(event: SimpleBotEvent):
        клавиатуру с кнопкой 'Подписаться на рассылку', 
        иначе возвращает текстовое сообщение и клавиатуру с кнопкой 'Отписаться от рассылки'"""
     if await check_id(event.object.object.message.peer_id):
-        await event.answer("Отписаться от рассылки?", keyboard=kb_unsubscribe_from_mailing_list.get_keyboard())
+        await event.answer(
+            "Отписаться от рассылки?",
+            keyboard=kb_unsubscribe_from_mailing_list.get_keyboard(),
+        )
     else:
-        await event.answer("Подписаться на рассылку?", keyboard=kb_subscribe_to_newsletter.get_keyboard())
+        await event.answer(
+            "Подписаться на рассылку?",
+            keyboard=kb_subscribe_to_newsletter.get_keyboard(),
+        )
 
 
 @bot.message_handler(filters.TextFilter("подписаться на рассылку"))
@@ -46,11 +60,15 @@ async def subscribe_newsletter(event: SimpleBotEvent):
        возвращает текстовое сообщение, зависящие от наличия пользователя в бд и 
        клавиатуру с кнопкой 'Отписаться от рассылки'"""
     if await check_id(event.object.object.message.peer_id):
-        await event.answer("Вы уже подписаны", keyboard=kb_unsubscribe_from_mailing_list.get_keyboard())
+        await event.answer(
+            "Вы уже подписаны", keyboard=kb_unsubscribe_from_mailing_list.get_keyboard()
+        )
     else:
         await add_id(event.object.object.message.peer_id)
-        await event.answer("Вы успешно подписались на уведомления, мы сообщим, если появится новое расписание", 
-                            keyboard=kb_unsubscribe_from_mailing_list.get_keyboard())
+        await event.answer(
+            "Вы успешно подписались на уведомления, мы сообщим, если появится новое расписание",
+            keyboard=kb_unsubscribe_from_mailing_list.get_keyboard(),
+        )
 
 
 @bot.message_handler(filters.TextFilter("отписаться от рассылки"))
@@ -62,9 +80,15 @@ async def unsubscribe_from_mailing_list(event: SimpleBotEvent):
        клавиатуру с кнопкой 'Подписаться на рассылку'"""
     if await check_id(event.object.object.message.peer_id):
         await del_id(event.object.object.message.peer_id)
-        await event.answer("Вы успешно отписались от рассылки", keyboard=kb_subscribe_to_newsletter.get_keyboard())
+        await event.answer(
+            "Вы успешно отписались от рассылки",
+            keyboard=kb_subscribe_to_newsletter.get_keyboard(),
+        )
     else:
-        await event.answer("Вы не подписаны на рассылку", keyboard=kb_subscribe_to_newsletter.get_keyboard())
+        await event.answer(
+            "Вы не подписаны на рассылку",
+            keyboard=kb_subscribe_to_newsletter.get_keyboard(),
+        )
 
 
 @bot.message_handler(filters.TextFilter("узнать расписание"))
@@ -74,7 +98,9 @@ async def choice_class(event: SimpleBotEvent) -> str:
     """Фильтрует сообщения и отвечает только на 'Узнать расписание',
        добавляет id пользователя в базу данных для оповещения о появлении нового расписания,
        возвращает текстовое сообщение и клавиатуру для выбора параллели."""
-    await event.answer("Выберите вашу параллель", keyboard=kb_choice_parallel.get_keyboard())
+    await event.answer(
+        "Выберите вашу параллель", keyboard=kb_choice_parallel.get_keyboard()
+    )
 
 
 @bot.message_handler(filters.TextFilter(parallel))
@@ -84,7 +110,12 @@ async def choice_parallel(event: SimpleBotEvent):
     """Фильтрует сообщения и отвечает только на парралель,
        генерирует клавиатуру взависимости от выбранной параллели,
        возвращает текстовое сообщение и клавиатуру для выбора класса."""
-    await event.answer("Выберите ваш класс", keyboard=give_parallel(event.object.object.message.text.split()[0]).get_keyboard())
+    await event.answer(
+        "Выберите ваш класс",
+        keyboard=give_parallel(
+            event.object.object.message.text.split()[0]
+        ).get_keyboard(),
+    )
 
 
 @bot.message_handler(filters.TextFilter(CLASSES_NAMES))
@@ -98,15 +129,17 @@ async def get_schedule(event: SimpleBotEvent):
     if len(file_path) == 1:
         file_path = file_path[0]
         attachment = await PhotoUploader(bot.api_context).get_attachment_from_path(
-            peer_id=peer_id, 
-            file_path=file_path
+            peer_id=peer_id, file_path=file_path
         )
     else:
         attachment = await PhotoUploader(bot.api_context).get_attachments_from_paths(
-            peer_id=peer_id,
-            file_paths=file_path
+            peer_id=peer_id, file_paths=file_path
         )
-    await event.answer(message=f"Расписание {event.object.object.message.text}", attachment=attachment, keyboard=kb_get_schedule.get_keyboard())
+    await event.answer(
+        message=f"Расписание {event.object.object.message.text}",
+        attachment=attachment,
+        keyboard=kb_get_schedule.get_keyboard(),
+    )
 
 
 @bot.message_handler(filters.TextFilter("назад"))
@@ -120,7 +153,6 @@ async def back(event: SimpleBotEvent):
     await event.answer("Я вас не понимаю")
 
 
-
 def main():
     """Функция, отвечающая за запуск бота."""
 
@@ -130,6 +162,7 @@ def main():
     add_parser_to_loop(loop)
     create_database()
     bot.run_forever(loop=loop)
+
 
 def add_parser_to_loop(loop):
     loop.create_task(parse(bot))
