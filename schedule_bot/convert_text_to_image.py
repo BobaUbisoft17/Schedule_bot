@@ -1,21 +1,16 @@
-from PIL import Image, ImageDraw, ImageFont
-from csv_parser import get_classes_schedules
-import os 
+import os
 import glob
 
+from PIL import Image, ImageDraw, ImageFont
 
-PATH = "schedule_image/"
+from csv_parser import get_classes_schedules
+from repositories.image_repository import ImageRepository
 
-
-async def del_img():
-    """Функция для удаления старого расписания."""
-    imgs = glob.glob(PATH + '*')
-    for img in imgs:
-        os.remove(img)
 
 async def make_image(date):
     """Фунция для создания изображения с расписанием."""
-    await del_img()
+    ImageRepository().delete_all()  # ! side effect
+
     list_10_11 = []
     date_first_number = await get_date(date)
     next_date = await get_next_date(date)
@@ -74,14 +69,8 @@ async def make_image(date):
                 out.paste(lesson, (0, count_hight))
                 count_hight += 143
 
-
-
         filename = f"{class_name}.jpg"
-        schedules = [path.split("\\")[-1] for path in glob.glob(PATH + "*.jpg")]
-        if filename in schedules:
-            out.save(PATH + class_name + "2.jpg")
-        else:
-            out.save(PATH + class_name + ".jpg")
+        ImageRepository().save(filename, out)
 
 
 async def get_date(date):
@@ -114,7 +103,7 @@ async def get_next_date(date):
         else:
             return f"1 {await get_month(int(month) + 1)} {year}"
     else:
-        if year.replace(" ", "") != "": 
+        if year.replace(" ", "") != "":
             if 0 <= int(day) + 1 <= 30 and int(month) != 2:
                 return f"{int(day) + 1} {await get_month(int(month))} 20{year}"
             elif int(month) == 2:
