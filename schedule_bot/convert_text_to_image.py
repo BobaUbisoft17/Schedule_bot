@@ -1,3 +1,5 @@
+import datetime
+from types import ModuleType
 from PIL import Image, ImageDraw, ImageFont
 from csv_parser import get_classes_schedules
 import os 
@@ -42,12 +44,13 @@ async def make_image(date):
         out_2 = Image.new("RGB", (1442, 400), "white")
         background = ImageDraw.Draw(out)
         add_blocks = ImageDraw.Draw(out_2)
-        add_blocks.multiline_text((430, 200), f"{date}\n{class_name}", font=font_to_heading, fill="grey", anchor="ms", spacing=25)
+        add_blocks.multiline_text((140, 125), f"{date}\n{class_name}", font=font_to_heading, fill="grey", spacing=25)
         out.paste(out_2, (0, 0))
         count_hight = 400
-        if len(list_schedule) == 8:
-            for i in range(8):
-                lesson = Image.new("RGB", (1442, 125), "white")
+        if len(list_schedule) > 7:
+            pix_for_one_lesson = 1100 // len(list_schedule)
+            for i in range(len(list_schedule)):
+                lesson = Image.new("RGB", (1442, pix_for_one_lesson), "white")
                 insert_for_item_name = ImageDraw.Draw(lesson)
                 if list_schedule[i] == "нет урока" or list_schedule[i] == "":
                     insert_for_item_name.text((145, 15), list_schedule[i][:23], font=font_to_lessons, fill="grey")
@@ -58,7 +61,7 @@ async def make_image(date):
                     insert_for_item_name.text((970, 30), bells[i], font=fnt, fill="grey")
                     insert_for_item_name.line([(150, 100), (1292, 100)], fill="grey", width=4)
                 out.paste(lesson, (0, count_hight))
-                count_hight += 125
+                count_hight += pix_for_one_lesson
         else:
             for i in range(len(bells)):
                 lesson = Image.new("RGB", (1442, 143), "white")
@@ -88,63 +91,49 @@ async def get_date(date):
     """Функция для получения даты расписания."""
     if len(date[0].split(".")) == 2:
         day, month = date[0].split(".")
-        year = "       "
-        return f"{day} {await get_month(int(month))} {year}"
+        if len(day) < 2:
+            day = "0" + day
+        if len(month) < 2:
+            month = "0" + month
+        year = datetime.datetime.now().strftime("%Y")
+        return f"{day}.{month}.{year} - {await get_week_day(day, month, year)}"
     else:
         day, month, year = date[0].split(".")
-        return f"{day} {await get_month(int(month))} 20{year}"
+        if len(day) < 2:
+            day = "0" + day
+        if len(month) < 2:
+            month = "0" + month
+        year = datetime.datetime.now().strftime("%Y")
+        return f"{day}.{month}.{year} - {await get_week_day(day, month, year)}"
 
 
 async def get_next_date(date):
     """Функция для получения даты расписания + 1 день."""
 
     """В основном используется для получения даты расписания на субботу."""
-    month_31 = [1, 3, 5, 7, 8, 10, 12]
     if len(date[0].split(".")) == 2:
         day, month = date[0].split(".")
-        year = "       "
+        year = datetime.datetime.now().strftime("%Y")
     else:
         day, month, year = date[0].split(".")
-    if month in month_31:
-        if 1 <= int(day) + 1 <= 31:
-            if year.replace(" ", "") != "":
-                return f"{int(day) + 1} {await get_month(int(month))} 20{year}"
-            else:
-                return f"{int(day) + 1} {await get_month(int(month))} {year}"
-        else:
-            return f"1 {await get_month(int(month) + 1)} {year}"
-    else:
-        if year.replace(" ", "") != "": 
-            if 0 <= int(day) + 1 <= 30 and int(month) != 2:
-                return f"{int(day) + 1} {await get_month(int(month))} 20{year}"
-            elif int(month) == 2:
-                if (int("20" + year) % 4 == 0) or (int("20" + year) % 400 == 0 and int("20" + year) % 100 == 0):
-                    if int(day) < 29:
-                        return f"{int(day) + 1} {await get_month(int(month))} 20{year}"
-                    else:
-                        return f"1 {await get_month(int(month) + 1)} 20{year}"
-                else:
-                    if int(day) < 28:
-                        return f"{int(day) + 1} {await get_month(int(month))} 20{year}"
-                    else:
-                        return f"1 {await get_month(int(month) + 1)} 20{year}"
-        else:
-            if 0 <= int(day) + 1 <= 30 and int(month) != 2:
-                return f"{int(day) + 1} {await get_month(int(month))} {year}"
+    if len(day) < 2:
+            day = "0" + day
+    if len(month) < 2:
+        month = "0" + month
+    year = datetime.datetime.now().strftime("%Y")
+    day, month, year = ((datetime.date(int(year), int(month), int(day)) + datetime.timedelta(days=1)).strftime("%d.%m.%Y")).split(".")
+    return f"{day}.{month}.{year} - {await get_week_day(day, month, year)}"
+    
+    
 
-
-async def get_month(number_of_month):
-    """Функция преобразования числа месяца в название месяца."""
-    month = {1 : "января",
-             2 : "февраля",
-             3 : "марта",
-             4 : "апреля",
-             5 : "мая",
-             6 : "июня",
-             7 : "июля",
-             8 : "августа",
-             9 : "сентября",
-             10 : "октября",
-             11 : "ноября",
-             12 : "декабря"}
-    return month[number_of_month]
+async def get_week_day(day, month, year):
+    days_of_week = {
+        "Sunday": "Воскресенье",
+        "Monday": "Понедельник",
+        "Tuesday": "Вторник",
+        "Wednesday": "Среда",
+        "Thursday": "Четверг",
+        "Friday": "Пятница",
+        "Saturday": "Суббота",
+    }
+    return days_of_week[datetime.date(int(year), int(month), int(day)).strftime("%A")]
