@@ -1,6 +1,4 @@
 from typing import Optional, Tuple
-import requests
-from requests import Response
 from bs4 import BeautifulSoup
 from convert_pdf_to_csv import convert
 from convert_text_to_image import make_image
@@ -8,13 +6,15 @@ from database_users import get_id
 import asyncio
 import glob
 import os
+import aiohttp
+import aiofiles
 
 URL = "https://s11018.edu35.ru/obuchayushchimsya/raspisanie-urokov"
 HEADERS = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
     "accept": "*/*",
 }
-PATH = "schedule_tables/"
+PATH = "schedule_bot/schedule_tables/"
 
 
 async def check_for_innovation(filename: str):
@@ -34,10 +34,12 @@ async def check_for_innovation(filename: str):
                 return False, "No"
 
 
-async def get_html(url: str, params: Optional[dict] = None) -> Response:
+async def get_html(url: str, params: Optional[dict] = None):
     """Получение кода страницы."""
-    r = requests.get(url, headers=HEADERS, params=params)
-    return r
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            html_code = await response.text()
+            return html_code, response.status
 
 
 async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
@@ -61,7 +63,9 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
             and int(schedules[i][0][1]) > int(max_date[0][1])
         ):
             max_date = schedules[i]
-    return max_date[1].split("/")[-1], max_date[1]
+    filename = max_date[1].split("/")[-1]
+    link = max_date[1]
+    return filename, link
 
 
 async def get_file(filename_and_link: Tuple[str, str]):
@@ -69,9 +73,10 @@ async def get_file(filename_and_link: Tuple[str, str]):
     filename, link = (i for i in filename_and_link)
     bools, status = await check_for_innovation(filename)
     if bools:
-        response = requests.get(link)
-        with open(PATH + filename, "wb") as schedule:
-            schedule.write(response.content)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(link) as response:
+                async with aiofiles.open(PATH + filename, "wb") as schedule:
+                    await schedule.write(await response.content.read())
         await convert(filename)
         return True, filename, status
     else:
@@ -86,24 +91,25 @@ async def parse(bot):
             await asyncio.sleep(1)
         else:
             await asyncio.sleep(1800)
-        html = await get_html(URL)
-        if html.status_code == 200:
+        html, status = await get_html(URL)
+        if status == 200:
             bools, filename, status = await get_file(
-                await get_link_and_filename(html.text)
-            )
+                await get_link_and_filename(html)
+                )
             if bools:
                 await make_image(filename.split())
                 if status == "Update":
-                    for peer_id in await get_id():
-                        await bot.api_context.messages.send(
-                            peer_id=peer_id,
+                    for user_id in await get_id():
+                        await bot.api.messages.send(
+                            user_id=user_id,
                             message="Появилось обновлённое расписание",
                             random_id=0,
-                        )
+                            )
                 elif status == "New":
-                    for peer_id in await get_id():
-                        await bot.api_context.messages.send(
-                            peer_id=peer_id,
+                    for user_id in await get_id():
+                        await bot.api.messages.send(
+                            user_id=user_id,
                             message="Появилось новое расписание",
                             random_id=0,
-                        )
+                            )
+                            
