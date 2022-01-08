@@ -1,168 +1,230 @@
+from vkbottle.dispatch.views.abc import message
 from config import VKBOTTOKEN
+from vkbottle.bot import Bot, Message
+from vkbottle import PhotoMessageUploader, BaseStateGroup
 import logging
-from vkwave.bots import SimpleLongPollBot, SimpleBotEvent
-from vkwave.bots.core.dispatching import filters
 from keyboard import (
     kb_get_schedule,
     kb_choice_parallel,
     kb_unsubscribe_from_mailing_list,
     kb_subscribe_to_newsletter,
+    kb_memory_class,
+    kb_change_class,
     parallel,
     CLASSES_NAMES,
     give_parallel,
 )
-from vkwave.bots.utils.uploaders import PhotoUploader
+from db_memory_class import add_class_and_id, check_class_id, del_class_id, get_class_id
+from vkbottle.dispatch.rules.base import ChatActionRule, StateRule
+from vkbottle_types.events import GroupJoin
 from file_service import get_schedule_class
 from database_users import add_id, check_id, del_id, create_database
+from db_memory_class import create_db
 from schedule_parser import parse
 import asyncio
 
+
+class States_memory_class(BaseStateGroup):
+    class_name = 0
+
+
+class States_change_class(BaseStateGroup):
+    class_name = 0
+
+
+bot = Bot(token=VKBOTTOKEN)
+bot.loop_wrapper.add_task(parse(bot))
 logging.basicConfig(level=logging.INFO)
-# Создаём объект бота
-bot = SimpleLongPollBot(tokens=VKBOTTOKEN, group_id=209208856)
-CLASSES_NAMES = [i.lower() for i in CLASSES_NAMES]
 
+@bot.on.private_message(text="Начать")
+async def hi_handler(message: Message):
+    """Функция для ответа на сообщение 'Начать'.
 
-@bot.message_handler(filters.TextFilter("начать"))
-async def greetings(event: SimpleBotEvent) -> str:
-    """Функция для ответа на сообщение 'Начать'."""
-
-    """Фильтрует сообщения и отвечает только на 'Начать',
+       Фильтрует сообщения и отвечает только на 'Начать',
        возвращает текстовое сообщение и клавиатуру."""
-    await event.answer("Здравствуйте!!!", keyboard=kb_get_schedule.get_keyboard())
+    await add_class_and_id(message.peer_id)
+    users_info = await bot.api.users.get(message.from_id)
+    await message.answer(message="Здравствуйте, {}".format(users_info[0].first_name), keyboard=kb_get_schedule)
 
 
-@bot.message_handler(filters.TextFilter("настроить уведомления"))
-async def customize_notifications(event: SimpleBotEvent):
-    """Функция для ответа на сообщение 'Настроить уведомления'."""
+@bot.on.private_message(text="Настроить уведомления")
+async def customize_notifications(message: Message):
+    """Функция для ответа на сообщение 'Настроить уведомления'.
 
-    """Фильтрует сообщения и отвечает только на 'Настроить уведомления',
+       Фильтрует сообщения и отвечает только на 'Настроить уведомления',
        если пользователя нет в базе данных, то возвращает текстовое сообщение и 
        клавиатуру с кнопкой 'Подписаться на рассылку', 
        иначе возвращает текстовое сообщение и клавиатуру с кнопкой 'Отписаться от рассылки'"""
-    if await check_id(event.object.object.message.peer_id):
-        await event.answer(
+    if await check_id(message.peer_id):
+        await message.answer(
             "Отписаться от рассылки?",
-            keyboard=kb_unsubscribe_from_mailing_list.get_keyboard(),
+            keyboard=kb_unsubscribe_from_mailing_list,
         )
     else:
-        await event.answer(
+        await message.answer(
             "Подписаться на рассылку?",
-            keyboard=kb_subscribe_to_newsletter.get_keyboard(),
+            keyboard=kb_subscribe_to_newsletter,
         )
 
 
-@bot.message_handler(filters.TextFilter("подписаться на рассылку"))
-async def subscribe_newsletter(event: SimpleBotEvent):
-    """Функция для ответа на сообщение 'Подписаться на рассылку'."""
+@bot.on.private_message(text="Подписаться на рассылку")
+async def subscribe_newsletter(message: Message):
+    """Функция для ответа на сообщение 'Подписаться на рассылку'.
 
-    """Фильтрует сообщения и отвечает только на 'Подписаться на рассылку',
+       Фильтрует сообщения и отвечает только на 'Подписаться на рассылку',
        возвращает текстовое сообщение, зависящие от наличия пользователя в бд и 
        клавиатуру с кнопкой 'Отписаться от рассылки'"""
-    if await check_id(event.object.object.message.peer_id):
-        await event.answer(
-            "Вы уже подписаны", keyboard=kb_unsubscribe_from_mailing_list.get_keyboard()
+    if await check_id(message.peer_id):
+        await message.answer(
+            "Вы уже подписаны", keyboard=kb_unsubscribe_from_mailing_list
         )
     else:
-        await add_id(event.object.object.message.peer_id)
-        await event.answer(
+        await add_id(message.peer_id)
+        await message.answer(
             "Вы успешно подписались на уведомления, мы сообщим, если появится новое расписание",
-            keyboard=kb_unsubscribe_from_mailing_list.get_keyboard(),
+            keyboard=kb_unsubscribe_from_mailing_list,
         )
 
 
-@bot.message_handler(filters.TextFilter("отписаться от рассылки"))
-async def unsubscribe_from_mailing_list(event: SimpleBotEvent):
-    """Функция для ответа на сообщение 'Отписаться от рассылки'."""
+@bot.on.private_message(text="Отписаться от рассылки")
+async def unsubscribe_from_mailing_list(message: Message):
+    """Функция для ответа на сообщение 'Отписаться от рассылки'.
 
-    """Фильтрует сообщения и отвечает только на 'Отписаться от рассылки',
+       Фильтрует сообщения и отвечает только на 'Отписаться от рассылки',
        возвращает текстовое сообщение, зависящие от наличия пользователя в бд и 
        клавиатуру с кнопкой 'Подписаться на рассылку'"""
-    if await check_id(event.object.object.message.peer_id):
-        await del_id(event.object.object.message.peer_id)
-        await event.answer(
+    user_info = await bot.api.users.get(message.from_id)
+    if await check_id(message.peer_id):
+        await del_id(message.peer_id)
+        await message.answer(
             "Вы успешно отписались от рассылки",
-            keyboard=kb_subscribe_to_newsletter.get_keyboard(),
+            keyboard=kb_subscribe_to_newsletter,
         )
     else:
-        await event.answer(
+        await message.answer(
             "Вы не подписаны на рассылку",
-            keyboard=kb_subscribe_to_newsletter.get_keyboard(),
+            keyboard=kb_subscribe_to_newsletter,
         )
 
 
-@bot.message_handler(filters.TextFilter("узнать расписание"))
-async def choice_class(event: SimpleBotEvent) -> str:
-    """Функция для ответа на сообщение 'Узнать расписание'."""
+@bot.on.private_message(text="Узнать расписание")
+async def choice_parallel(message: Message):
+    """Функция для ответа на сообщение 'Узнать расписание'.
 
-    """Фильтрует сообщения и отвечает только на 'Узнать расписание',
+       Фильтрует сообщения и отвечает только на 'Узнать расписание',
        добавляет id пользователя в базу данных для оповещения о появлении нового расписания,
        возвращает текстовое сообщение и клавиатуру для выбора параллели."""
-    await event.answer(
-        "Выберите вашу параллель", keyboard=kb_choice_parallel.get_keyboard()
-    )
+    if await check_class_id(message.peer_id):
+        class_name = await get_class_id(message.peer_id)
+        file_path = get_schedule_class(class_name)
+        photo = [await PhotoMessageUploader(bot.api).upload(file) for file in file_path]
+        await message.answer(f"Расписание {class_name}", attachment=photo, keyboard=kb_get_schedule)
+    else:
+        await message.answer(
+            "Выберите вашу параллель", keyboard=kb_choice_parallel
+        )
+
+@bot.on.private_message(text="Настроить запоминание класса")
+async def memory_class(message: Message):
+    if not await check_class_id(message.peer_id):
+        await message.answer("Переходим...", keyboard=kb_memory_class)
+    else:
+        await message.answer("Переходим...", keyboard=kb_change_class)
 
 
-@bot.message_handler(filters.TextFilter(parallel))
-async def choice_parallel(event: SimpleBotEvent):
-    """Функция для ответа на сообщение, в котором указаны параллели от 5-х до 11-х классов."""
+@bot.on.private_message(text=parallel)
+async def choice_class(message: Message):
+    """Функция для ответа на сообщение, в котором указаны параллели от 5-х до 11-х классов.
 
-    """Фильтрует сообщения и отвечает только на парралель,
+       Фильтрует сообщения и отвечает только на парралель,
        генерирует клавиатуру взависимости от выбранной параллели,
        возвращает текстовое сообщение и клавиатуру для выбора класса."""
-    await event.answer(
+    await message.answer(
         "Выберите ваш класс",
-        keyboard=give_parallel(
-            event.object.object.message.text.split()[0]
-        ).get_keyboard(),
+        keyboard=await give_parallel(
+            message.text.split()[0]
+        ),
     )
 
 
-@bot.message_handler(filters.TextFilter(CLASSES_NAMES))
-async def get_schedule(event: SimpleBotEvent):
-    """Функция для отправки фотографий с расписанием."""
-
-    """Функция фильтрует сообщения и отвечает тольок на те, в которых указан класс из списка CLASSES_NAMES,
-       возвращает изображение или изображения(взависимости от класса и дня недели) + текст."""
-    file_path = get_schedule_class(event.object.object.message.text)
-    peer_id = event.object.object.message.peer_id
-    if len(file_path) == 1:
-        file_path = file_path[0]
-        attachment = await PhotoUploader(bot.api_context).get_attachment_from_path(
-            peer_id=peer_id, file_path=file_path
-        )
+@bot.on.private_message(text="Удалить данные о моём классе")
+async def del_class(message: Message):
+    if await check_class_id(message.peer_id):
+        await del_class_id(message.peer_id)
+        await message.answer("Все данные о вашем классе были удалены", keyboard=kb_get_schedule)
     else:
-        attachment = await PhotoUploader(bot.api_context).get_attachments_from_paths(
-            peer_id=peer_id, file_paths=file_path
-        )
-    await event.answer(
-        message=f"Расписание {event.object.object.message.text}",
-        attachment=attachment,
-        keyboard=kb_get_schedule.get_keyboard(),
-    )
+        await message.answer("Не ломайте бота, пожалуйста", kb_get_schedule)
 
 
-@bot.message_handler(filters.TextFilter("назад"))
-async def back(event: SimpleBotEvent):
-    await event.answer("Возвращаемся...", keyboard=kb_get_schedule.get_keyboard())
+@bot.on.private_message(text="Назад")
+async def back(message: Message):
+    await message.answer("Возвращаемся...", keyboard=kb_get_schedule)
 
 
-@bot.message_handler()
-async def back(event: SimpleBotEvent):
+@bot.on.private_message(lev="Запомнить мой класс")
+async def class_memory(message: Message):
+    if not await check_class_id(message.peer_id):
+        await bot.state_dispenser.set(message.peer_id, States_memory_class.class_name)
+        return "Введите номер вашего класса и букву в верхнем регистре без пробелов"
+    else:
+        await message.answer("Не ломайте бота, пожалуйста", keyboard=kb_get_schedule)
+
+
+@bot.on.private_message(state=States_memory_class.class_name)
+async def get_class_name(message: Message):
+    if message.text in CLASSES_NAMES:
+        await add_class_and_id(message.peer_id, message.text)
+        await message.answer("Мы вас запомнили, теперь вам не нужно выбирать класс и параллель", keyboard=kb_get_schedule)
+    else:
+        await bot.state_dispenser.set(message.peer_id, States_memory_class.class_name)
+        return "Вы ввели некорректные данные, попробуйте ещё раз"
+
+
+@bot.on.chat_message(ChatActionRule("chat_invite_user"))
+async def hi_handler(message: Message):
+    users_info = await bot.api.users.get(message.from_id)
+    await message.answer("Здравствуйте, я Джарвиз, рад работать в вашей беседе")
+
+
+@bot.on.private_message(lev="Изменить класс")
+async def change_class(message: Message):
+    if await check_class_id(message.peer_id):
+        await bot.state_dispenser.set(message.peer_id, States_change_class.class_name)
+        return "Введите номер вашего класса и букву в верхнем регистре без пробелов"
+
+
+@bot.on.private_message(state=States_change_class.class_name)
+async def select_class(message: Message):
+    if message.text in CLASSES_NAMES:
+        await add_class_and_id(message.peer_id, message.text)
+        await message.answer("Вы успешно изменили класс", keyboard=kb_get_schedule)
+    else:
+        bot.state_dispenser.set(message.peer_id, States_change_class.class_name)
+        return "Вы ввели некорректные данные, попробуйте ещё раз" 
+
+
+@bot.on.private_message(text=CLASSES_NAMES)
+async def get_schedule(message: Message):
+    """Функция для отправки фотографий с расписанием.
+
+       Функция фильтрует сообщения и отвечает тольок на те, в которых указан класс из списка CLASSES_NAMES,
+       возвращает изображение или изображения(взависимости от класса и дня недели) + текст."""
+    file_path = get_schedule_class(message.text)
+    photo = [await PhotoMessageUploader(bot.api).upload(file) for file in file_path]
+    await message.answer(f"Расписание {message.text}", attachment=photo, keyboard=kb_get_schedule)
+
+
+@bot.on.private_message()
+async def other(message: Message):
     """Функция для обработки сообщений, на которые не настроены фильтры"""
-    await event.answer("Я вас не понимаю")
+    await message.answer("Я вас не понимаю")
 
 
 def main():
-    """Функция, отвечающая за запуск бота."""
+    """Функция, отвечающая за запуск бота.
 
-    """Функция запускает код бота, а вызывает функцию для запуска парсера,
+       Функция запускает код бота, а вызывает функцию для запуска парсера,
        создвёт доп. процесс."""
-    loop = asyncio.get_event_loop_policy().get_event_loop()
-    add_parser_to_loop(loop)
+    create_db()
     create_database()
-    bot.run_forever(loop=loop)
-
-
-def add_parser_to_loop(loop):
-    loop.create_task(parse(bot))
+    bot.run_forever()
