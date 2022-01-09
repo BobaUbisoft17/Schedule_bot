@@ -32,7 +32,11 @@ class States_change_class(BaseStateGroup):
     class_name = 0
 
 
-bot = Bot(token=VKBOTTOKEN)
+class States_select_class_after_parallel(BaseStateGroup):
+    class_name = 0
+
+
+bot = Bot(token="9e4429f430662551b13798f9927ba499b2ff2db188a99f5127bbfe465a07642f2c24efc419d2533774530")
 bot.loop_wrapper.add_task(parse(bot))
 logging.basicConfig(level=logging.INFO)
 
@@ -116,7 +120,7 @@ async def choice_parallel(message: Message):
        возвращает текстовое сообщение и клавиатуру для выбора параллели."""
     if await check_class_id(message.peer_id):
         class_name = await get_class_id(message.peer_id)
-        file_path = get_schedule_class(class_name)
+        file_path = await get_schedule_class(class_name)
         photo = [await PhotoMessageUploader(bot.api).upload(file) for file in file_path]
         await message.answer(f"Расписание {class_name}", attachment=photo, keyboard=kb_get_schedule)
     else:
@@ -161,6 +165,17 @@ async def back(message: Message):
     await message.answer("Возвращаемся...", keyboard=kb_get_schedule)
 
 
+@bot.on.private_message(text=CLASSES_NAMES, payload={"cmd": "class_"})
+async def get_schedule(message: Message):
+    """Функция для отправки фотографий с расписанием.
+
+       Функция фильтрует сообщения и отвечает тольок на те, в которых указан класс из списка CLASSES_NAMES,
+       возвращает изображение или изображения(взависимости от класса и дня недели) + текст."""
+    file_path = await get_schedule_class(message.text)
+    photo = [await PhotoMessageUploader(bot.api).upload(file) for file in file_path]
+    await message.answer(f"Расписание {message.text}", attachment=photo, keyboard=kb_get_schedule)
+
+
 @bot.on.private_message(lev="Запомнить мой класс")
 async def class_memory(message: Message):
     if not await check_class_id(message.peer_id):
@@ -201,17 +216,6 @@ async def select_class(message: Message):
     else:
         bot.state_dispenser.set(message.peer_id, States_change_class.class_name)
         return "Вы ввели некорректные данные, попробуйте ещё раз" 
-
-
-@bot.on.private_message(text=CLASSES_NAMES)
-async def get_schedule(message: Message):
-    """Функция для отправки фотографий с расписанием.
-
-       Функция фильтрует сообщения и отвечает тольок на те, в которых указан класс из списка CLASSES_NAMES,
-       возвращает изображение или изображения(взависимости от класса и дня недели) + текст."""
-    file_path = get_schedule_class(message.text)
-    photo = [await PhotoMessageUploader(bot.api).upload(file) for file in file_path]
-    await message.answer(f"Расписание {message.text}", attachment=photo, keyboard=kb_get_schedule)
 
 
 @bot.on.private_message()

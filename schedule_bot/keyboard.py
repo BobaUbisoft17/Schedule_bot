@@ -68,7 +68,7 @@ async def give_parallel(parallel):
             if count % 4 == 0 and count != 0:
                 kb_choice_class.row()
             count += 1
-            kb_choice_class.add(Text(class_), color=KeyboardButtonColor.POSITIVE)
+            kb_choice_class.add(Text(class_, {"cmd": "class_"}), color=KeyboardButtonColor.POSITIVE)
     return kb_choice_class
 
 kb_memory_class.add(Text("Запомнить мой класс"), color=KeyboardButtonColor.POSITIVE)
