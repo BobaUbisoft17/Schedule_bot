@@ -14,7 +14,7 @@ HEADERS = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
     "accept": "*/*",
 }
-PATH = "schedule_bot/schedule_tables/"
+PATH = "schedule_tables/"
 
 
 async def check_for_innovation(filename: str):
