@@ -63,7 +63,7 @@ async def del_class_id(id):
         db.close()
         return False
     else:
-        cursor.execute("DELETE FROM memory_class WHERE id=?", [id])
+        cursor.execute(f"Update memory_class SET class = '' WHERE id = '{id}'")
         db.commit()
         cursor.close()
         db.close()
