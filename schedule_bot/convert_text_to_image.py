@@ -128,12 +128,12 @@ async def get_next_date(date):
 
 async def get_week_day(day, month, year):
     days_of_week = {
-        "Sunday": "Воскресенье",
-        "Monday": "Понедельник",
-        "Tuesday": "Вторник",
-        "Wednesday": "Среда",
-        "Thursday": "Четверг",
-        "Friday": "Пятница",
-        "Saturday": "Суббота",
+        "Sunday": "воскресенье",
+        "Monday": "понедельник",
+        "Tuesday": "вторник",
+        "Wednesday": "среда",
+        "Thursday": "четверг",
+        "Friday": "пятница",
+        "Saturday": "суббота",
     }
     return days_of_week[datetime.date(int(year), int(month), int(day)).strftime("%A")]
