@@ -32,11 +32,7 @@ class States_change_class(BaseStateGroup):
     class_name = 0
 
 
-class States_select_class_after_parallel(BaseStateGroup):
-    class_name = 0
-
-
-bot = Bot(token="9e4429f430662551b13798f9927ba499b2ff2db188a99f5127bbfe465a07642f2c24efc419d2533774530")
+bot = Bot(token=VKBOTTOKEN)
 bot.loop_wrapper.add_task(parse(bot))
 logging.basicConfig(level=logging.INFO)
 
@@ -189,6 +185,7 @@ async def class_memory(message: Message):
 async def get_class_name(message: Message):
     if message.text in CLASSES_NAMES:
         await add_class_and_id(message.peer_id, message.text)
+        await bot.state_dispenser.delete(message.peer_id)
         await message.answer("Мы вас запомнили, теперь вам не нужно выбирать класс и параллель", keyboard=kb_get_schedule)
     else:
         await bot.state_dispenser.set(message.peer_id, States_memory_class.class_name)
@@ -197,7 +194,6 @@ async def get_class_name(message: Message):
 
 @bot.on.chat_message(ChatActionRule("chat_invite_user"))
 async def hi_handler(message: Message):
-    users_info = await bot.api.users.get(message.from_id)
     await message.answer("Здравствуйте, я Джарвиз, рад работать в вашей беседе")
 
 
@@ -212,16 +208,17 @@ async def change_class(message: Message):
 async def select_class(message: Message):
     if message.text in CLASSES_NAMES:
         await add_class_and_id(message.peer_id, message.text)
+        await bot.state_dispenser.delete(message.peer_id)
         await message.answer("Вы успешно изменили класс", keyboard=kb_get_schedule)
     else:
-        bot.state_dispenser.set(message.peer_id, States_change_class.class_name)
+        await bot.state_dispenser.set(message.peer_id, States_change_class.class_name)
         return "Вы ввели некорректные данные, попробуйте ещё раз" 
 
 
 @bot.on.private_message()
 async def other(message: Message):
     """Функция для обработки сообщений, на которые не настроены фильтры"""
-    await message.answer("Я вас не понимаю")
+    await message.answer("Я вас не понимаю", keyboard=kb_get_schedule)
 
 
 def main():
