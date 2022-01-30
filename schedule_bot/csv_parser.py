@@ -30,7 +30,7 @@ async def get_classes_schedules() -> List[ClassSchedule]:
 async def _get_csv_files(path: list) -> List[str]:
     """Полученеия .csv файлов в текущей директории."""
     csv_files = glob.glob(path)
-    return csv_files
+    return sorted(csv_files)
 
 
 async def _fetch_classes_schedules_from_csv(filepath: str) -> List[Tuple[str, str]]:

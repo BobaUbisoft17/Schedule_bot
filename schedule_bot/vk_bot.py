@@ -117,7 +117,7 @@ async def choice_parallel(message: Message):
     if await check_class_id(message.peer_id):
         class_name = await get_class_id(message.peer_id)
         file_path = await get_schedule_class(class_name)
-        photo = [await PhotoMessageUploader(bot.api).upload(file) for file in file_path]
+        photo = [await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)]
         await message.answer(f"Расписание {class_name}", attachment=photo, keyboard=kb_get_schedule)
     else:
         await message.answer(
@@ -168,7 +168,7 @@ async def get_schedule(message: Message):
        Функция фильтрует сообщения и отвечает тольок на те, в которых указан класс из списка CLASSES_NAMES,
        возвращает изображение или изображения(взависимости от класса и дня недели) + текст."""
     file_path = await get_schedule_class(message.text)
-    photo = [await PhotoMessageUploader(bot.api).upload(file) for file in file_path]
+    photo = [await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)]
     await message.answer(f"Расписание {message.text}", attachment=photo, keyboard=kb_get_schedule)
 
 
