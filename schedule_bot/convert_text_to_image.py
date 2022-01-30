@@ -42,7 +42,6 @@ async def make_image(date):
         font_to_lessons = ImageFont.truetype("arial.ttf", 70)
         # get a drawing context
         out_2 = Image.new("RGB", (1442, 400), "white")
-        background = ImageDraw.Draw(out)
         add_blocks = ImageDraw.Draw(out_2)
         add_blocks.multiline_text((140, 125), f"{date}\n{class_name}", font=font_to_heading, fill="grey", spacing=25)
         out.paste(out_2, (0, 0))
@@ -80,11 +79,11 @@ async def make_image(date):
 
 
         filename = f"{class_name}.jpg"
-        schedules = [path.split("\\")[-1] for path in glob.glob(PATH + "*.jpg")]
+        schedules = [os.path.split(path)[-1] for path in glob.glob(PATH + "*.jpg")]
         if filename in schedules:
-            out.save(PATH + class_name + "2.jpg")
+            out.save(os.path.join(PATH, class_name + "2.jpg"))
         else:
-            out.save(PATH + class_name + ".jpg")
+            out.save(os.path.join(PATH, class_name + ".jpg"))
 
 
 async def get_date(date):
