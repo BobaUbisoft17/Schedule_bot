@@ -23,8 +23,8 @@ async def check_for_innovation(filename: str):
         return True, "New"
     else:
         for file in csv_files:
-            if file.split("\\")[-1] != filename:
-                if file.split("\\")[-1] in filename:
+            if os.path.split(file)[-1] != filename:
+                if (os.path.split(file)[-1]).split()[0] in filename:
                     os.remove(file)
                     return True, "Update"
                 else:
@@ -36,7 +36,8 @@ async def check_for_innovation(filename: str):
 
 async def get_html(url: str, params: Optional[dict] = None):
     """Получение кода страницы."""
-    async with aiohttp.ClientSession() as session:
+    connector = aiohttp.TCPConnector(force_close=True)
+    async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(url) as response:
             html_code = await response.text()
             return html_code, response.status
@@ -73,7 +74,8 @@ async def get_file(filename_and_link: Tuple[str, str]):
     filename, link = (i for i in filename_and_link)
     bools, status = await check_for_innovation(filename)
     if bools:
-        async with aiohttp.ClientSession() as session:
+        connector = aiohttp.TCPConnector(force_close=True)
+        async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(link) as response:
                 async with aiofiles.open(PATH + filename, "wb") as schedule:
                     await schedule.write(await response.content.read())
