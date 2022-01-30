@@ -47,7 +47,7 @@ async def hi_handler(message: Message):
     await message.answer(message="Здравствуйте, {}".format(users_info[0].first_name), keyboard=kb_get_schedule)
 
 
-@bot.on.private_message(text="Настроить уведомления")
+@bot.on.private_message(text="Настроить уведомления", payload={"cmd" : "set_notifications"})
 async def customize_notifications(message: Message):
     """Функция для ответа на сообщение 'Настроить уведомления'.
 
@@ -67,7 +67,7 @@ async def customize_notifications(message: Message):
         )
 
 
-@bot.on.private_message(text="Подписаться на рассылку")
+@bot.on.private_message(text="Подписаться на рассылку", payload={"cmd" : "subscribe_on_newsletter"})
 async def subscribe_newsletter(message: Message):
     """Функция для ответа на сообщение 'Подписаться на рассылку'.
 
@@ -86,7 +86,7 @@ async def subscribe_newsletter(message: Message):
         )
 
 
-@bot.on.private_message(text="Отписаться от рассылки")
+@bot.on.private_message(text="Отписаться от рассылки", payload={"cmd" : "unsubscribe_on_newsletter"})
 async def unsubscribe_from_mailing_list(message: Message):
     """Функция для ответа на сообщение 'Отписаться от рассылки'.
 
@@ -107,7 +107,7 @@ async def unsubscribe_from_mailing_list(message: Message):
         )
 
 
-@bot.on.private_message(text="Узнать расписание")
+@bot.on.private_message(text="Узнать расписание", payload={"cmd" : "get_schedule"})
 async def choice_parallel(message: Message):
     """Функция для ответа на сообщение 'Узнать расписание'.
 
@@ -124,7 +124,7 @@ async def choice_parallel(message: Message):
             "Выберите вашу параллель", keyboard=kb_choice_parallel
         )
 
-@bot.on.private_message(text="Настроить запоминание класса")
+@bot.on.private_message(text="Настроить запоминание класса", payload={"cmd" : "set_memory_class"})
 async def memory_class(message: Message):
     if not await check_class_id(message.peer_id):
         await message.answer("Переходим...", keyboard=kb_memory_class)
@@ -132,7 +132,7 @@ async def memory_class(message: Message):
         await message.answer("Переходим...", keyboard=kb_change_class)
 
 
-@bot.on.private_message(text=parallel)
+@bot.on.private_message(text=parallel, payload={"cmd" : "parallel"})
 async def choice_class(message: Message):
     """Функция для ответа на сообщение, в котором указаны параллели от 5-х до 11-х классов.
 
@@ -147,7 +147,7 @@ async def choice_class(message: Message):
     )
 
 
-@bot.on.private_message(text="Удалить данные о моём классе")
+@bot.on.private_message(text="Удалить данные о моём классе", payload={"cmd" : "del_my_class"})
 async def del_class(message: Message):
     if await check_class_id(message.peer_id):
         await del_class_id(message.peer_id)
@@ -156,7 +156,7 @@ async def del_class(message: Message):
         await message.answer("Не ломайте бота, пожалуйста", kb_get_schedule)
 
 
-@bot.on.private_message(text="Назад")
+@bot.on.private_message(text="Назад", payload={"cmd" : "back1"})
 async def back(message: Message):
     await message.answer("Возвращаемся...", keyboard=kb_get_schedule)
 
@@ -172,12 +172,13 @@ async def get_schedule(message: Message):
     await message.answer(f"Расписание {message.text}", attachment=photo, keyboard=kb_get_schedule)
 
 
-@bot.on.private_message(lev="Запомнить мой класс")
+@bot.on.private_message(lev="Запомнить мой класс", payload={"cmd" : "memory_my_class"})
 async def class_memory(message: Message):
     if not await check_class_id(message.peer_id):
         await bot.state_dispenser.set(message.peer_id, States_memory_class.class_name)
         return "Введите номер вашего класса и букву в верхнем регистре без пробелов"
     else:
+        await bot.state_dispenser.delete(message.peer_id)
         await message.answer("Не ломайте бота, пожалуйста", keyboard=kb_get_schedule)
 
 
@@ -197,7 +198,7 @@ async def hi_handler(message: Message):
     await message.answer("Здравствуйте, я Джарвиз, рад работать в вашей беседе")
 
 
-@bot.on.private_message(lev="Изменить класс")
+@bot.on.private_message(lev="Изменить класс", payload={"cmd" : "change_my_class"})
 async def change_class(message: Message):
     if await check_class_id(message.peer_id):
         await bot.state_dispenser.set(message.peer_id, States_change_class.class_name)

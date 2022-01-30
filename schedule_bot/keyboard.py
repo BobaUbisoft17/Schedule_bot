@@ -36,27 +36,27 @@ kb_memory_class = Keyboard(one_time=True)
 kb_change_class = Keyboard(one_time=True)
 
 
-kb_get_schedule.add(Text("Узнать расписание"), color=KeyboardButtonColor.POSITIVE)
+kb_get_schedule.add(Text("Узнать расписание", {"cmd" : "get_schedule"}), color=KeyboardButtonColor.POSITIVE)
 kb_get_schedule.row()
-kb_get_schedule.add(Text("Настроить уведомления"), color=KeyboardButtonColor.SECONDARY)
+kb_get_schedule.add(Text("Настроить уведомления", {"cmd" : "set_notifications"}), color=KeyboardButtonColor.SECONDARY)
 kb_get_schedule.row()
-kb_get_schedule.add(Text("Настроить запоминание класса"), color=KeyboardButtonColor.SECONDARY)
+kb_get_schedule.add(Text("Настроить запоминание класса", {"cmd" : "set_memory_class"}), color=KeyboardButtonColor.SECONDARY)
 kb_subscribe_to_newsletter.add(Text(
-    "Подписаться на рассылку"), color=KeyboardButtonColor.PRIMARY
+    "Подписаться на рассылку", {"cmd" : "subscribe_on_newsletter"}), color=KeyboardButtonColor.PRIMARY
 )
 kb_subscribe_to_newsletter.row()
-kb_subscribe_to_newsletter.add(Text("Назад"), color=KeyboardButtonColor.NEGATIVE)
+kb_subscribe_to_newsletter.add(Text("Назад", {"cmd" : "back1"}), color=KeyboardButtonColor.NEGATIVE)
 kb_unsubscribe_from_mailing_list.add(Text(
-    "Отписаться от рассылки"), color=KeyboardButtonColor.PRIMARY
+    "Отписаться от рассылки", {"cmd" : "unsubscribe_on_newsletter"}), color=KeyboardButtonColor.PRIMARY
 )
 kb_unsubscribe_from_mailing_list.row()
-kb_unsubscribe_from_mailing_list.add(Text("Назад"), color=KeyboardButtonColor.NEGATIVE)
+kb_unsubscribe_from_mailing_list.add(Text("Назад", {"cmd" : "back1"}), color=KeyboardButtonColor.NEGATIVE)
 
 
 for i in range(len(parallel)):
     if (i + 1) % 3 == 0:
         kb_choice_parallel.row()
-    kb_choice_parallel.add(Text(parallel[i]), color=KeyboardButtonColor.POSITIVE)
+    kb_choice_parallel.add(Text(parallel[i], {"cmd" : "parallel"}), color=KeyboardButtonColor.POSITIVE)
 
 
 async def give_parallel(parallel):
@@ -71,7 +71,7 @@ async def give_parallel(parallel):
             kb_choice_class.add(Text(class_, {"cmd": "class_"}), color=KeyboardButtonColor.POSITIVE)
     return kb_choice_class
 
-kb_memory_class.add(Text("Запомнить мой класс"), color=KeyboardButtonColor.POSITIVE)
-kb_change_class.add(Text("Изменить класс"), color=KeyboardButtonColor.POSITIVE)
+kb_memory_class.add(Text("Запомнить мой класс", {"cmd" : "memory_my_class"}), color=KeyboardButtonColor.POSITIVE)
+kb_change_class.add(Text("Изменить класс", {"cmd" : "change_my_class"}), color=KeyboardButtonColor.POSITIVE)
 kb_change_class.row()
-kb_change_class.add(Text("Удалить данные о моём классе"), color=KeyboardButtonColor.NEGATIVE)
+kb_change_class.add(Text("Удалить данные о моём классе", {"cmd" : "del_my_class"}), color=KeyboardButtonColor.NEGATIVE)
