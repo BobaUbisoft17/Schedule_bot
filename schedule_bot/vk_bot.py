@@ -1,4 +1,5 @@
 from vkbottle.dispatch.views.abc import message
+from vkbottle.tools.dev import keyboard
 from config import VKBOTTOKEN
 from vkbottle.bot import Bot, Message
 from vkbottle import PhotoMessageUploader, BaseStateGroup
@@ -10,10 +11,12 @@ from keyboard import (
     kb_subscribe_to_newsletter,
     kb_memory_class,
     kb_change_class,
+    kb_settings,
     parallel,
     CLASSES_NAMES,
     give_parallel,
 )
+from BOT_SUPPORT import BOT_SUPPORT
 from db_memory_class import add_class_and_id, check_class_id, del_class_id, get_class_id
 from vkbottle.dispatch.rules.base import ChatActionRule, StateRule
 from vkbottle_types.events import GroupJoin
@@ -118,11 +121,17 @@ async def choice_parallel(message: Message):
         class_name = await get_class_id(message.peer_id)
         file_path = await get_schedule_class(class_name)
         photo = [await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)]
-        await message.answer(f"Расписание {class_name}", attachment=photo, keyboard=kb_get_schedule)
+        await message.answer(f"Расписание {class_name}", attachment=photo)
     else:
         await message.answer(
             "Выберите вашу параллель", keyboard=kb_choice_parallel
         )
+
+
+@bot.on.private_message(text="Настройки", payload={"cmd": "settings"})
+async def change_settings(message: Message):
+    await message.answer("Переходим...", keyboard=kb_settings)
+
 
 @bot.on.private_message(text="Настроить запоминание класса", payload={"cmd" : "set_memory_class"})
 async def memory_class(message: Message):
@@ -151,12 +160,17 @@ async def choice_class(message: Message):
 async def del_class(message: Message):
     if await check_class_id(message.peer_id):
         await del_class_id(message.peer_id)
-        await message.answer("Все данные о вашем классе были удалены", keyboard=kb_get_schedule)
+        await message.answer("Все данные о вашем классе были удалены", keyboard=kb_settings)
     else:
-        await message.answer("Не ломайте бота, пожалуйста", kb_get_schedule)
+        await message.answer("Не ломайте бота, пожалуйста", kb_settings)
 
 
 @bot.on.private_message(text="Назад", payload={"cmd" : "back1"})
+async def back(message: Message):
+    await message.answer("Возвращаемся...", keyboard=kb_settings)
+
+
+@bot.on.private_message(text="Назад", payload={"cmd" : "back2"})
 async def back(message: Message):
     await message.answer("Возвращаемся...", keyboard=kb_get_schedule)
 
@@ -179,7 +193,7 @@ async def class_memory(message: Message):
         return "Введите номер вашего класса и букву в верхнем регистре без пробелов"
     else:
         await bot.state_dispenser.delete(message.peer_id)
-        await message.answer("Не ломайте бота, пожалуйста", keyboard=kb_get_schedule)
+        await message.answer("Не ломайте бота, пожалуйста", keyboard=kb_settings)
 
 
 @bot.on.private_message(state=States_memory_class.class_name)
@@ -187,7 +201,7 @@ async def get_class_name(message: Message):
     if message.text in CLASSES_NAMES:
         await add_class_and_id(message.peer_id, message.text)
         await bot.state_dispenser.delete(message.peer_id)
-        await message.answer("Мы вас запомнили, теперь вам не нужно выбирать класс и параллель", keyboard=kb_get_schedule)
+        await message.answer("Мы вас запомнили, теперь вам не нужно выбирать класс и параллель", keyboard=kb_settings)
     else:
         await bot.state_dispenser.set(message.peer_id, States_memory_class.class_name)
         return "Вы ввели некорректные данные, попробуйте ещё раз"
@@ -210,10 +224,15 @@ async def select_class(message: Message):
     if message.text in CLASSES_NAMES:
         await add_class_and_id(message.peer_id, message.text)
         await bot.state_dispenser.delete(message.peer_id)
-        await message.answer("Вы успешно изменили класс", keyboard=kb_get_schedule)
+        await message.answer("Вы успешно изменили класс", keyboard=kb_settings)
     else:
         await bot.state_dispenser.set(message.peer_id, States_change_class.class_name)
         return "Вы ввели некорректные данные, попробуйте ещё раз" 
+
+
+@bot.on.private_message(text="Помощь", payload={"cmd": "help"})
+async def get_help(message: Message):
+    await message.answer(BOT_SUPPORT)
 
 
 @bot.on.private_message()
