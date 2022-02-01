@@ -72,7 +72,7 @@ async def _get_schedule_bells(schedule: list):
                 if len(time) < 2 and time != "":
                     time = "0" + time
                 elif time == "":
-                    time = "Не указано"
+                    time = "не указано"
                 true_bell_schedule.append(time)
             true_bell.append(".".join([i for i in true_bell_schedule]))
         schedule_bells[i] = "-".join([i for i in true_bell])
