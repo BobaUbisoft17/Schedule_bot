@@ -1,5 +1,5 @@
 from types import TracebackType
-from vkbottle import Keyboard, KeyboardButtonColor, Text
+from vkbottle import Keyboard, KeyboardButtonColor, Text, OpenLink
 
 
 parallel = [
@@ -27,7 +27,7 @@ CLASSES_NAMES = [
 ]
 
 
-kb_get_schedule = Keyboard()
+kb_get_schedule = Keyboard(one_time=True)
 kb_choice_parallel = Keyboard()
 kb_choice_class = Keyboard()
 kb_subscribe_to_newsletter = Keyboard()
@@ -41,22 +41,22 @@ kb_get_schedule.add(Text("Узнать расписание", {"cmd": "get_sched
 kb_get_schedule.row()
 kb_get_schedule.add(Text("Настройки", {"cmd": "settings"}), color=KeyboardButtonColor.SECONDARY)
 kb_get_schedule.row()
-kb_get_schedule.add(Text("Помощь", {"cmd": "help"}), color=KeyboardButtonColor.SECONDARY)
+kb_get_schedule.add(OpenLink("https://vk.com/@schedulebot14-pomosch-v-poluchenii-raspisaniya", "Помощь"), color=KeyboardButtonColor.SECONDARY)
 kb_settings.add(Text("Настроить уведомления", {"cmd": "set_notifications"}), color=KeyboardButtonColor.SECONDARY)
 kb_settings.row()
-kb_settings.add(Text("Настроить запоминание класса", {"cmd" : "set_memory_class"}), color=KeyboardButtonColor.SECONDARY)
+kb_settings.add(Text("Запоминание класса", {"cmd" : "set_memory_class"}), color=KeyboardButtonColor.SECONDARY)
 kb_settings.row()
-kb_settings.add(Text("Назад", {"cmd": "back2"}), color=KeyboardButtonColor.NEGATIVE)
+kb_settings.add(Text("Назад", {"cmd": "back2"}), color=KeyboardButtonColor.PRIMARY)
 kb_subscribe_to_newsletter.add(Text(
-    "Подписаться на рассылку", {"cmd": "subscribe_on_newsletter"}), color=KeyboardButtonColor.PRIMARY
+    "Подписаться на рассылку", {"cmd": "subscribe_on_newsletter"}), color=KeyboardButtonColor.POSITIVE
 )
 kb_subscribe_to_newsletter.row()
-kb_subscribe_to_newsletter.add(Text("Назад", {"cmd": "back1"}), color=KeyboardButtonColor.NEGATIVE)
+kb_subscribe_to_newsletter.add(Text("Назад", {"cmd": "back1"}), color=KeyboardButtonColor.PRIMARY)
 kb_unsubscribe_from_mailing_list.add(Text(
-    "Отписаться от рассылки", {"cmd": "unsubscribe_on_newsletter"}), color=KeyboardButtonColor.PRIMARY
+    "Отписаться от рассылки", {"cmd": "unsubscribe_on_newsletter"}), color=KeyboardButtonColor.NEGATIVE
 )
 kb_unsubscribe_from_mailing_list.row()
-kb_unsubscribe_from_mailing_list.add(Text("Назад", {"cmd": "back1"}), color=KeyboardButtonColor.NEGATIVE)
+kb_unsubscribe_from_mailing_list.add(Text("Назад", {"cmd": "back1"}), color=KeyboardButtonColor.PRIMARY)
 
 
 for i in range(len(parallel)):
@@ -78,7 +78,14 @@ async def give_parallel(parallel):
     return kb_choice_class
 
 kb_memory_class.add(Text("Запомнить мой класс", {"cmd": "memory_my_class"}), color=KeyboardButtonColor.POSITIVE)
+kb_memory_class.row()
+kb_memory_class.add(Text("Назад", {"cmd": "back1"}), color=KeyboardButtonColor.PRIMARY)
 kb_change_class.add(Text("Изменить класс", {"cmd": "change_my_class"}), color=KeyboardButtonColor.POSITIVE)
 kb_change_class.row()
 kb_change_class.add(Text("Удалить данные о моём классе", {"cmd": "del_my_class"}), color=KeyboardButtonColor.NEGATIVE)
+<<<<<<< HEAD
  
+=======
+kb_change_class.row()
+kb_change_class.add(Text("Назад", {"cmd": "back1"}), color=KeyboardButtonColor.PRIMARY)
+>>>>>>> 7319f86 (Change class of button help from 'Text' to 'OpenLink' fix #8)
