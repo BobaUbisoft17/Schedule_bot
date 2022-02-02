@@ -121,7 +121,7 @@ async def choice_parallel(message: Message):
         class_name = await get_class_id(message.peer_id)
         file_path = await get_schedule_class(class_name)
         photo = [await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)]
-        await message.answer(f"Расписание {class_name}", attachment=photo)
+        await message.answer(f"Расписание {class_name}", attachment=photo, keyboard=kb_get_schedule)
     else:
         await message.answer(
             "Выберите вашу параллель", keyboard=kb_choice_parallel
@@ -133,7 +133,7 @@ async def change_settings(message: Message):
     await message.answer("Переходим...", keyboard=kb_settings)
 
 
-@bot.on.private_message(text="Настроить запоминание класса", payload={"cmd" : "set_memory_class"})
+@bot.on.private_message(text="Запоминание класса", payload={"cmd" : "set_memory_class"})
 async def memory_class(message: Message):
     if not await check_class_id(message.peer_id):
         await message.answer("Переходим...", keyboard=kb_memory_class)
