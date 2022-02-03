@@ -251,11 +251,6 @@ async def select_class(message: Message):
         return "Вы ввели некорректные данные, попробуйте ещё раз"
 
 
-@bot.on.private_message(text="Помощь", payload={"cmd": "help"})
-async def get_help(message: Message):
-    await message.answer(BOT_SUPPORT)
-
-
 @bot.on.private_message()
 async def other(message: Message):
     """Функция для обработки сообщений, на которые не настроены фильтры"""
