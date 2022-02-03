@@ -39,25 +39,31 @@ bot = Bot(token=VKBOTTOKEN)
 bot.loop_wrapper.add_task(parse(bot))
 logging.basicConfig(level=logging.INFO)
 
+
 @bot.on.private_message(text="Начать")
 async def hi_handler(message: Message):
     """Функция для ответа на сообщение 'Начать'.
 
-       Фильтрует сообщения и отвечает только на 'Начать',
-       возвращает текстовое сообщение и клавиатуру."""
+    Фильтрует сообщения и отвечает только на 'Начать',
+    возвращает текстовое сообщение и клавиатуру."""
     await add_class_and_id(message.peer_id)
     users_info = await bot.api.users.get(message.from_id)
-    await message.answer(message="Здравствуйте, {}".format(users_info[0].first_name), keyboard=kb_get_schedule)
+    await message.answer(
+        message="Здравствуйте, {}".format(users_info[0].first_name),
+        keyboard=kb_get_schedule,
+    )
 
 
-@bot.on.private_message(text="Настроить уведомления", payload={"cmd" : "set_notifications"})
+@bot.on.private_message(
+    text="Настроить уведомления", payload={"cmd": "set_notifications"}
+)
 async def customize_notifications(message: Message):
     """Функция для ответа на сообщение 'Настроить уведомления'.
 
-       Фильтрует сообщения и отвечает только на 'Настроить уведомления',
-       если пользователя нет в базе данных, то возвращает текстовое сообщение и 
-       клавиатуру с кнопкой 'Подписаться на рассылку', 
-       иначе возвращает текстовое сообщение и клавиатуру с кнопкой 'Отписаться от рассылки'"""
+    Фильтрует сообщения и отвечает только на 'Настроить уведомления',
+    если пользователя нет в базе данных, то возвращает текстовое сообщение и
+    клавиатуру с кнопкой 'Подписаться на рассылку',
+    иначе возвращает текстовое сообщение и клавиатуру с кнопкой 'Отписаться от рассылки'"""
     if await check_id(message.peer_id):
         await message.answer(
             "Отписаться от рассылки?",
@@ -70,13 +76,15 @@ async def customize_notifications(message: Message):
         )
 
 
-@bot.on.private_message(text="Подписаться на рассылку", payload={"cmd" : "subscribe_on_newsletter"})
+@bot.on.private_message(
+    text="Подписаться на рассылку", payload={"cmd": "subscribe_on_newsletter"}
+)
 async def subscribe_newsletter(message: Message):
     """Функция для ответа на сообщение 'Подписаться на рассылку'.
 
-       Фильтрует сообщения и отвечает только на 'Подписаться на рассылку',
-       возвращает текстовое сообщение, зависящие от наличия пользователя в бд и 
-       клавиатуру с кнопкой 'Отписаться от рассылки'"""
+    Фильтрует сообщения и отвечает только на 'Подписаться на рассылку',
+    возвращает текстовое сообщение, зависящие от наличия пользователя в бд и
+    клавиатуру с кнопкой 'Отписаться от рассылки'"""
     if await check_id(message.peer_id):
         await message.answer(
             "Вы уже подписаны", keyboard=kb_unsubscribe_from_mailing_list
@@ -89,13 +97,15 @@ async def subscribe_newsletter(message: Message):
         )
 
 
-@bot.on.private_message(text="Отписаться от рассылки", payload={"cmd" : "unsubscribe_on_newsletter"})
+@bot.on.private_message(
+    text="Отписаться от рассылки", payload={"cmd": "unsubscribe_on_newsletter"}
+)
 async def unsubscribe_from_mailing_list(message: Message):
     """Функция для ответа на сообщение 'Отписаться от рассылки'.
 
-       Фильтрует сообщения и отвечает только на 'Отписаться от рассылки',
-       возвращает текстовое сообщение, зависящие от наличия пользователя в бд и 
-       клавиатуру с кнопкой 'Подписаться на рассылку'"""
+    Фильтрует сообщения и отвечает только на 'Отписаться от рассылки',
+    возвращает текстовое сообщение, зависящие от наличия пользователя в бд и
+    клавиатуру с кнопкой 'Подписаться на рассылку'"""
     user_info = await bot.api.users.get(message.from_id)
     if await check_id(message.peer_id):
         await del_id(message.peer_id)
@@ -110,22 +120,25 @@ async def unsubscribe_from_mailing_list(message: Message):
         )
 
 
-@bot.on.private_message(text="Узнать расписание", payload={"cmd" : "get_schedule"})
+@bot.on.private_message(text="Узнать расписание", payload={"cmd": "get_schedule"})
 async def choice_parallel(message: Message):
     """Функция для ответа на сообщение 'Узнать расписание'.
 
-       Фильтрует сообщения и отвечает только на 'Узнать расписание',
-       добавляет id пользователя в базу данных для оповещения о появлении нового расписания,
-       возвращает текстовое сообщение и клавиатуру для выбора параллели."""
+    Фильтрует сообщения и отвечает только на 'Узнать расписание',
+    добавляет id пользователя в базу данных для оповещения о появлении нового расписания,
+    возвращает текстовое сообщение и клавиатуру для выбора параллели."""
     if await check_class_id(message.peer_id):
         class_name = await get_class_id(message.peer_id)
         file_path = await get_schedule_class(class_name)
-        photo = [await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)]
-        await message.answer(f"Расписание {class_name}", attachment=photo, keyboard=kb_get_schedule)
-    else:
+        photo = [
+            await PhotoMessageUploader(bot.api).upload(file)
+            for file in sorted(file_path)
+        ]
         await message.answer(
-            "Выберите вашу параллель", keyboard=kb_choice_parallel
+            f"Расписание {class_name}", attachment=photo, keyboard=kb_get_schedule
         )
+    else:
+        await message.answer("Выберите вашу параллель", keyboard=kb_choice_parallel)
 
 
 @bot.on.private_message(text="Настройки", payload={"cmd": "settings"})
@@ -133,7 +146,7 @@ async def change_settings(message: Message):
     await message.answer("Переходим...", keyboard=kb_settings)
 
 
-@bot.on.private_message(text="Запоминание класса", payload={"cmd" : "set_memory_class"})
+@bot.on.private_message(text="Запоминание класса", payload={"cmd": "set_memory_class"})
 async def memory_class(message: Message):
     if not await check_class_id(message.peer_id):
         await message.answer("Переходим...", keyboard=kb_memory_class)
@@ -141,36 +154,38 @@ async def memory_class(message: Message):
         await message.answer("Переходим...", keyboard=kb_change_class)
 
 
-@bot.on.private_message(text=parallel, payload={"cmd" : "parallel"})
+@bot.on.private_message(text=parallel, payload={"cmd": "parallel"})
 async def choice_class(message: Message):
     """Функция для ответа на сообщение, в котором указаны параллели от 5-х до 11-х классов.
 
-       Фильтрует сообщения и отвечает только на парралель,
-       генерирует клавиатуру взависимости от выбранной параллели,
-       возвращает текстовое сообщение и клавиатуру для выбора класса."""
+    Фильтрует сообщения и отвечает только на парралель,
+    генерирует клавиатуру взависимости от выбранной параллели,
+    возвращает текстовое сообщение и клавиатуру для выбора класса."""
     await message.answer(
         "Выберите ваш класс",
-        keyboard=await give_parallel(
-            message.text.split()[0]
-        ),
+        keyboard=await give_parallel(message.text.split()[0]),
     )
 
 
-@bot.on.private_message(text="Удалить данные о моём классе", payload={"cmd" : "del_my_class"})
+@bot.on.private_message(
+    text="Удалить данные о моём классе", payload={"cmd": "del_my_class"}
+)
 async def del_class(message: Message):
     if await check_class_id(message.peer_id):
         await del_class_id(message.peer_id)
-        await message.answer("Все данные о вашем классе были удалены", keyboard=kb_settings)
+        await message.answer(
+            "Все данные о вашем классе были удалены", keyboard=kb_settings
+        )
     else:
         await message.answer("Не ломайте бота, пожалуйста", kb_settings)
 
 
-@bot.on.private_message(text="Назад", payload={"cmd" : "back1"})
+@bot.on.private_message(text="Назад", payload={"cmd": "back1"})
 async def back(message: Message):
     await message.answer("Возвращаемся...", keyboard=kb_settings)
 
 
-@bot.on.private_message(text="Назад", payload={"cmd" : "back2"})
+@bot.on.private_message(text="Назад", payload={"cmd": "back2"})
 async def back(message: Message):
     await message.answer("Возвращаемся...", keyboard=kb_get_schedule)
 
@@ -179,14 +194,18 @@ async def back(message: Message):
 async def get_schedule(message: Message):
     """Функция для отправки фотографий с расписанием.
 
-       Функция фильтрует сообщения и отвечает тольок на те, в которых указан класс из списка CLASSES_NAMES,
-       возвращает изображение или изображения(взависимости от класса и дня недели) + текст."""
+    Функция фильтрует сообщения и отвечает тольок на те, в которых указан класс из списка CLASSES_NAMES,
+    возвращает изображение или изображения(взависимости от класса и дня недели) + текст."""
     file_path = await get_schedule_class(message.text)
-    photo = [await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)]
-    await message.answer(f"Расписание {message.text}", attachment=photo, keyboard=kb_get_schedule)
+    photo = [
+        await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)
+    ]
+    await message.answer(
+        f"Расписание {message.text}", attachment=photo, keyboard=kb_get_schedule
+    )
 
 
-@bot.on.private_message(lev="Запомнить мой класс", payload={"cmd" : "memory_my_class"})
+@bot.on.private_message(lev="Запомнить мой класс", payload={"cmd": "memory_my_class"})
 async def class_memory(message: Message):
     if not await check_class_id(message.peer_id):
         await bot.state_dispenser.set(message.peer_id, States_memory_class.class_name)
@@ -201,7 +220,10 @@ async def get_class_name(message: Message):
     if message.text in CLASSES_NAMES:
         await add_class_and_id(message.peer_id, message.text)
         await bot.state_dispenser.delete(message.peer_id)
-        await message.answer("Мы вас запомнили, теперь вам не нужно выбирать класс и параллель", keyboard=kb_settings)
+        await message.answer(
+            "Мы вас запомнили, теперь вам не нужно выбирать класс и параллель",
+            keyboard=kb_settings,
+        )
     else:
         await bot.state_dispenser.set(message.peer_id, States_memory_class.class_name)
         return "Вы ввели некорректные данные, попробуйте ещё раз"
@@ -212,7 +234,7 @@ async def hi_handler(message: Message):
     await message.answer("Здравствуйте, я Джарвиз, рад работать в вашей беседе")
 
 
-@bot.on.private_message(lev="Изменить класс", payload={"cmd" : "change_my_class"})
+@bot.on.private_message(lev="Изменить класс", payload={"cmd": "change_my_class"})
 async def change_class(message: Message):
     if await check_class_id(message.peer_id):
         await bot.state_dispenser.set(message.peer_id, States_change_class.class_name)
@@ -227,7 +249,7 @@ async def select_class(message: Message):
         await message.answer("Вы успешно изменили класс", keyboard=kb_settings)
     else:
         await bot.state_dispenser.set(message.peer_id, States_change_class.class_name)
-        return "Вы ввели некорректные данные, попробуйте ещё раз" 
+        return "Вы ввели некорректные данные, попробуйте ещё раз"
 
 
 @bot.on.private_message(text="Помощь", payload={"cmd": "help"})
@@ -244,8 +266,8 @@ async def other(message: Message):
 def main():
     """Функция, отвечающая за запуск бота.
 
-       Функция запускает код бота, а вызывает функцию для запуска парсера,
-       создвёт доп. процесс."""
+    Функция запускает код бота, а вызывает функцию для запуска парсера,
+    создвёт доп. процесс."""
     create_db()
     create_database()
     bot.run_forever()

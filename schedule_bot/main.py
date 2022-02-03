@@ -15,6 +15,7 @@ bot = Bot(token=os.getenv("SCHEDULEBOT_TOKEN"))
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
+
 @dp.message_handler(commands=["start"])
 async def send_welcome(message: Message):
     await message.answer(
@@ -26,7 +27,7 @@ async def send_welcome(message: Message):
 # TODO: add handler filter
 @dp.message_handler()
 async def send_schedule(message: Message):
-	await message.answer(
-		get_schedule(message.text),
-		reply_markup=kb.markup,
-		)
+    await message.answer(
+        get_schedule(message.text),
+        reply_markup=kb.markup,
+    )

@@ -95,9 +95,7 @@ async def parse(bot):
             await asyncio.sleep(1800)
         html, status = await get_html(URL)
         if status == 200:
-            bools, filename, status = await get_file(
-                await get_link_and_filename(html)
-                )
+            bools, filename, status = await get_file(await get_link_and_filename(html))
             if bools:
                 await make_image(filename.split())
                 if status == "Update":
@@ -106,12 +104,11 @@ async def parse(bot):
                             user_id=user_id,
                             message="Появилось обновлённое расписание",
                             random_id=0,
-                            )
+                        )
                 elif status == "New":
                     for user_id in await get_id():
                         await bot.api.messages.send(
                             user_id=user_id,
                             message="Появилось новое расписание",
                             random_id=0,
-                            )
-                            
+                        )

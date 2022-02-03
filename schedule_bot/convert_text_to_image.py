@@ -2,7 +2,7 @@ import datetime
 from types import ModuleType
 from PIL import Image, ImageDraw, ImageFont
 from csv_parser import get_classes_schedules
-import os 
+import os
 import glob
 
 
@@ -11,9 +11,10 @@ PATH = "schedule_image/"
 
 async def del_img():
     """Функция для удаления старого расписания."""
-    imgs = glob.glob(PATH + '*')
+    imgs = glob.glob(PATH + "*")
     for img in imgs:
         os.remove(img)
+
 
 async def make_image(date):
     """Фунция для создания изображения с расписанием."""
@@ -43,7 +44,13 @@ async def make_image(date):
         # get a drawing context
         out_2 = Image.new("RGB", (1442, 400), "white")
         add_blocks = ImageDraw.Draw(out_2)
-        add_blocks.multiline_text((140, 125), f"{date}\n{class_name}", font=font_to_heading, fill="grey", spacing=25)
+        add_blocks.multiline_text(
+            (140, 125),
+            f"{date}\n{class_name}",
+            font=font_to_heading,
+            fill="grey",
+            spacing=25,
+        )
         out.paste(out_2, (0, 0))
         count_hight = 400
         if len(list_schedule) > 7:
@@ -52,13 +59,31 @@ async def make_image(date):
                 lesson = Image.new("RGB", (1442, pix_for_one_lesson), "white")
                 insert_for_item_name = ImageDraw.Draw(lesson)
                 if list_schedule[i] == "нет урока" or list_schedule[i] == "":
-                    insert_for_item_name.text((145, 15), list_schedule[i][:23], font=font_to_lessons, fill="grey")
-                    insert_for_item_name.text((970, 30), bells[i], font=fnt, fill="grey")
-                    insert_for_item_name.line([(150, 100), (1292, 100)], fill="grey", width=4)
+                    insert_for_item_name.text(
+                        (145, 15),
+                        list_schedule[i][:23],
+                        font=font_to_lessons,
+                        fill="grey",
+                    )
+                    insert_for_item_name.text(
+                        (970, 30), bells[i], font=fnt, fill="grey"
+                    )
+                    insert_for_item_name.line(
+                        [(150, 100), (1292, 100)], fill="grey", width=4
+                    )
                 else:
-                    insert_for_item_name.text((145, 15), list_schedule[i][:23], font=font_to_lessons, fill="black")
-                    insert_for_item_name.text((970, 30), bells[i], font=fnt, fill="grey")
-                    insert_for_item_name.line([(150, 100), (1292, 100)], fill="grey", width=4)
+                    insert_for_item_name.text(
+                        (145, 15),
+                        list_schedule[i][:23],
+                        font=font_to_lessons,
+                        fill="black",
+                    )
+                    insert_for_item_name.text(
+                        (970, 30), bells[i], font=fnt, fill="grey"
+                    )
+                    insert_for_item_name.line(
+                        [(150, 100), (1292, 100)], fill="grey", width=4
+                    )
                 out.paste(lesson, (0, count_hight))
                 count_hight += pix_for_one_lesson
         else:
@@ -66,17 +91,33 @@ async def make_image(date):
                 lesson = Image.new("RGB", (1442, 143), "white")
                 insert_for_item_name = ImageDraw.Draw(lesson)
                 if list_schedule[i] == "нет урока" or list_schedule[i] == "":
-                    insert_for_item_name.text((145, 15), list_schedule[i][:23], font=font_to_lessons, fill="grey")
-                    insert_for_item_name.text((970, 30), bells[i], font=fnt, fill="grey")
-                    insert_for_item_name.line([(150, 100), (1292, 100)], fill="grey", width=4)
+                    insert_for_item_name.text(
+                        (145, 15),
+                        list_schedule[i][:23],
+                        font=font_to_lessons,
+                        fill="grey",
+                    )
+                    insert_for_item_name.text(
+                        (970, 30), bells[i], font=fnt, fill="grey"
+                    )
+                    insert_for_item_name.line(
+                        [(150, 100), (1292, 100)], fill="grey", width=4
+                    )
                 else:
-                    insert_for_item_name.text((145, 15), list_schedule[i][:23], font=font_to_lessons, fill="black")
-                    insert_for_item_name.text((970, 30), bells[i], font=fnt, fill="grey")
-                    insert_for_item_name.line([(150, 100), (1292, 100)], fill="grey", width=4)
+                    insert_for_item_name.text(
+                        (145, 15),
+                        list_schedule[i][:23],
+                        font=font_to_lessons,
+                        fill="black",
+                    )
+                    insert_for_item_name.text(
+                        (970, 30), bells[i], font=fnt, fill="grey"
+                    )
+                    insert_for_item_name.line(
+                        [(150, 100), (1292, 100)], fill="grey", width=4
+                    )
                 out.paste(lesson, (0, count_hight))
                 count_hight += 143
-
-
 
         filename = f"{class_name}.jpg"
         schedules = [os.path.split(path)[-1] for path in glob.glob(PATH + "*.jpg")]
@@ -116,14 +157,17 @@ async def get_next_date(date):
     else:
         day, month, year = date[0].split(".")
     if len(day) < 2:
-            day = "0" + day
+        day = "0" + day
     if len(month) < 2:
         month = "0" + month
     year = datetime.datetime.now().strftime("%Y")
-    day, month, year = ((datetime.date(int(year), int(month), int(day)) + datetime.timedelta(days=1)).strftime("%d.%m.%Y")).split(".")
+    day, month, year = (
+        (
+            datetime.date(int(year), int(month), int(day)) + datetime.timedelta(days=1)
+        ).strftime("%d.%m.%Y")
+    ).split(".")
     return f"{day}.{month}.{year} - {await get_week_day(day, month, year)}"
-    
-    
+
 
 async def get_week_day(day, month, year):
     days_of_week = {
