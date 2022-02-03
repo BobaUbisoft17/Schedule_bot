@@ -83,9 +83,5 @@ kb_memory_class.add(Text("Назад", {"cmd": "back1"}), color=KeyboardButtonCo
 kb_change_class.add(Text("Изменить класс", {"cmd": "change_my_class"}), color=KeyboardButtonColor.POSITIVE)
 kb_change_class.row()
 kb_change_class.add(Text("Удалить данные о моём классе", {"cmd": "del_my_class"}), color=KeyboardButtonColor.NEGATIVE)
-<<<<<<< HEAD
- 
-=======
 kb_change_class.row()
 kb_change_class.add(Text("Назад", {"cmd": "back1"}), color=KeyboardButtonColor.PRIMARY)
->>>>>>> 7319f86 (Change class of button help from 'Text' to 'OpenLink' fix #8)
