@@ -16,7 +16,6 @@ from keyboard import (
     CLASSES_NAMES,
     give_parallel,
 )
-from BOT_SUPPORT import BOT_SUPPORT
 from db_memory_class import add_class_and_id, check_class_id, del_class_id, get_class_id
 from vkbottle.dispatch.rules.base import ChatActionRule, StateRule
 from vkbottle_types.events import GroupJoin
