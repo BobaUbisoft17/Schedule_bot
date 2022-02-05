@@ -259,7 +259,7 @@ async def back(message: Message):
 
 @bot.on.private_message(text="назад", payload={"cmd": "back4"})
 async def back(message: Message):
-    await message.answer("Выберите параллель", keyboard=kb_choice_parallel)
+    await message.answer("Выберите вашу параллель", keyboard=kb_choice_parallel)
 
 
 @bot.on.private_message()
