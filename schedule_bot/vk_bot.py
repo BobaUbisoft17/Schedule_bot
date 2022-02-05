@@ -142,15 +142,15 @@ async def choice_parallel(message: Message):
 
 @bot.on.private_message(text="Настройки", payload={"cmd": "settings"})
 async def change_settings(message: Message):
-    await message.answer("Переходим...", keyboard=kb_settings)
+    await message.answer("Переходим в раздел настроек", keyboard=kb_settings)
 
 
 @bot.on.private_message(text="Запоминание класса", payload={"cmd": "set_memory_class"})
 async def memory_class(message: Message):
     if not await check_class_id(message.peer_id):
-        await message.answer("Переходим...", keyboard=kb_memory_class)
+        await message.answer("Хотите чтобы мы запомнили ваш класс?", keyboard=kb_memory_class)
     else:
-        await message.answer("Переходим...", keyboard=kb_change_class)
+        await message.answer("Хотите изменить данные о вашем классе?", keyboard=kb_change_class)
 
 
 @bot.on.private_message(text=parallel, payload={"cmd": "parallel"})
@@ -181,12 +181,12 @@ async def del_class(message: Message):
 
 @bot.on.private_message(text="Назад", payload={"cmd": "back1"})
 async def back(message: Message):
-    await message.answer("Возвращаемся...", keyboard=kb_settings)
+    await message.answer("Переходим в меню настроек", keyboard=kb_settings)
 
 
 @bot.on.private_message(text="Назад", payload={"cmd": "back2"})
 async def back(message: Message):
-    await message.answer("Возвращаемся...", keyboard=kb_get_schedule)
+    await message.answer("Переходим в главное меню", keyboard=kb_get_schedule)
 
 
 @bot.on.private_message(text=CLASSES_NAMES, payload={"cmd": "class_"})
@@ -197,7 +197,8 @@ async def get_schedule(message: Message):
     возвращает изображение или изображения(взависимости от класса и дня недели) + текст."""
     file_path = await get_schedule_class(message.text)
     photo = [
-        await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)
+        await PhotoMessageUploader(bot.api).upload(file) 
+        for file in sorted(file_path)
     ]
     await message.answer(
         f"Расписание {message.text}", attachment=photo, keyboard=kb_get_schedule
