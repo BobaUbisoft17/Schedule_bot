@@ -252,12 +252,12 @@ async def select_class(message: Message):
         return "Вы ввели некорректные данные, попробуйте ещё раз"
 
 
-@bot.on.private_message(text="назад", payload={"cmd": "back3"})
+@bot.on.private_message(text="Назад", payload={"cmd": "back3"})
 async def back(message: Message):
     await message.answer("Переходим в главное меню", keyboard=kb_get_schedule)
 
 
-@bot.on.private_message(text="назад", payload={"cmd": "back4"})
+@bot.on.private_message(text="Назад", payload={"cmd": "back4"})
 async def back(message: Message):
     await message.answer("Выберите вашу параллель", keyboard=kb_choice_parallel)
 

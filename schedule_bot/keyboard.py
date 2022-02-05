@@ -87,7 +87,7 @@ for i in range(len(parallel)):
     kb_choice_parallel.add(
         Text(parallel[i], {"cmd": "parallel"}), color=KeyboardButtonColor.POSITIVE
     )
-kb_choice_parallel.row().add(Text("назад", {"cmd": "back3"}), color=KeyboardButtonColor.PRIMARY)
+kb_choice_parallel.row().add(Text("Назад", {"cmd": "back3"}), color=KeyboardButtonColor.PRIMARY)
 
 async def give_parallel(parallel):
     """Функция для генерации клавиатуры."""
@@ -101,7 +101,7 @@ async def give_parallel(parallel):
             kb_choice_class.add(
                 Text(class_, {"cmd": "class_"}), color=KeyboardButtonColor.POSITIVE
             )
-    kb_choice_class.row().add(Text("назад", {"cmd": "back4"}), color=KeyboardButtonColor.PRIMARY)
+    kb_choice_class.row().add(Text("Назад", {"cmd": "back4"}), color=KeyboardButtonColor.PRIMARY)
     return kb_choice_class
 
 
