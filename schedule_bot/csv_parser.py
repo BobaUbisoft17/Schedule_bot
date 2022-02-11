@@ -90,6 +90,14 @@ async def _split_schedule_by_classes(classes_count: int, schedules: list):
                 schedule
             ) == 1:
                 schedule *= len(classes_count)
+            if len(schedule) < classes_count and len(schedule) != 1:
+                count = 0
+                for lesson in schedule:
+                    if lesson == "":
+                        count += 1
+                    else:
+                        index = schedule.index(lesson)
+                schedule = schedule[:index] + [schedule[index] for _ in range(classes_count - count)] + schedule[index:]
             if schedule[i] == "" or schedule[i] == "-" or schedule[i] == ".":
                 schedule[i] = "нет урока"
             class_schedule.append(schedule[i])
