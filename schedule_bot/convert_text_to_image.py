@@ -61,7 +61,7 @@ async def make_image(date):
                 if list_schedule[i] == "нет урока" or list_schedule[i] == "":
                     insert_for_item_name.text(
                         (145, 15),
-                        list_schedule[i][:23],
+                        list_schedule[i][:20],
                         font=font_to_lessons,
                         fill="grey",
                     )
@@ -74,7 +74,7 @@ async def make_image(date):
                 else:
                     insert_for_item_name.text(
                         (145, 15),
-                        list_schedule[i][:23],
+                        list_schedule[i][:20],
                         font=font_to_lessons,
                         fill="black",
                     )
@@ -93,7 +93,7 @@ async def make_image(date):
                 if list_schedule[i] == "нет урока" or list_schedule[i] == "":
                     insert_for_item_name.text(
                         (145, 15),
-                        list_schedule[i][:23],
+                        list_schedule[i][:20],
                         font=font_to_lessons,
                         fill="grey",
                     )
@@ -106,7 +106,7 @@ async def make_image(date):
                 else:
                     insert_for_item_name.text(
                         (145, 15),
-                        list_schedule[i][:23],
+                        list_schedule[i][:20],
                         font=font_to_lessons,
                         fill="black",
                     )
