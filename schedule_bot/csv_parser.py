@@ -65,16 +65,28 @@ async def _get_schedule_bells(schedule: list):
         schedule[i] = schedule[i][2:]
     for i in range(len(schedule_bells)):
         true_bell = []
-        for bell in schedule_bells[i].split("-"):
-            true_bell_schedule = []
-            bell = bell.replace(":", ".")
-            for time in bell.split("."):
-                if len(time) < 2 and time != "":
-                    time = "0" + time
-                elif time == "":
-                    time = "не указано"
-                true_bell_schedule.append(time)
-            true_bell.append(".".join([i for i in true_bell_schedule]))
+        if "\n" not in schedule_bells[i]:
+            for bell in schedule_bells[i].split("-"):
+                true_bell_schedule = []
+                bell = bell.replace(":", ".")
+                for time in bell.split("."):
+                    if len(time) < 2 and time != "":
+                        time = "0" + time
+                    elif time == "":
+                        time = "не указано"
+                    true_bell_schedule.append(time)
+                true_bell.append(".".join([i for i in true_bell_schedule]))
+        if "\n" in schedule_bells[i]:
+            for bell in schedule_bells[i].split("-\n"):
+                true_bell_schedule = []
+                bell = bell.replace(":", ".")
+                for time in bell.split("."):
+                    if len(time) < 2 and time != "":
+                        time = "0" + time
+                    elif time == "":
+                        time = "не указано"
+                    true_bell_schedule.append(time)
+                true_bell.append(".".join([i for i in true_bell_schedule]))
         schedule_bells[i] = "-".join([i for i in true_bell])
 
     return schedule_bells, schedule
