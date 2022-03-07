@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 
-PATH = "schedule_tables/*.csv"
+PATH = "schedule_tables/school"
 
 
 @dataclass
@@ -15,10 +15,10 @@ class ClassSchedule:
     bells: list
 
 
-async def get_classes_schedules() -> List[ClassSchedule]:
+async def get_classes_schedules(school) -> List[ClassSchedule]:
     """Получение расписаний всех классов из .csv файлов."""
     classes_schedules = []
-    for file in await _get_csv_files(PATH):
+    for file in await _get_csv_files(school):
         for table in await _fetch_classes_schedules_from_csv(file):
             classes_schedules.append(
                 ClassSchedule(class_name=table[0], schedule=table[1], bells=table[-1])
@@ -27,9 +27,9 @@ async def get_classes_schedules() -> List[ClassSchedule]:
     return classes_schedules
 
 
-async def _get_csv_files(path: list) -> List[str]:
+async def _get_csv_files(school: str) -> List[str]:
     """Полученеия .csv файлов в текущей директории."""
-    csv_files = glob.glob(path)
+    csv_files = glob.glob(PATH + school + "/*.csv")
     return sorted(csv_files)
 
 

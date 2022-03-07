@@ -9,20 +9,20 @@ import glob
 PATH = "schedule_image/"
 
 
-async def del_img():
+async def del_img(school):
     """Функция для удаления старого расписания."""
-    imgs = glob.glob(PATH + "*")
+    imgs = glob.glob(PATH + "school" + school + "/*")
     for img in imgs:
         os.remove(img)
 
 
-async def make_image(date):
+async def make_image(date, school):
     """Фунция для создания изображения с расписанием."""
-    await del_img()
+    await del_img(school)
     list_10_11 = []
     date_first_number = await get_date(date)
     next_date = await get_next_date(date)
-    for class_ in await get_classes_schedules():
+    for class_ in await get_classes_schedules(school):
         class_name = class_.class_name
         list_schedule = class_.schedule
         bells = class_.bells
@@ -120,11 +120,11 @@ async def make_image(date):
                 count_hight += 143
 
         filename = f"{class_name}.jpg"
-        schedules = [os.path.split(path)[-1] for path in glob.glob(PATH + "*.jpg")]
+        schedules = [os.path.split(path)[-1] for path in glob.glob(PATH + "school" + school + "/*.jpg")]
         if filename in schedules:
-            out.save(os.path.join(PATH, class_name + "2.jpg"))
+            out.save(os.path.join(PATH + "school" + school + "/", class_name + "2.jpg"))
         else:
-            out.save(os.path.join(PATH, class_name + ".jpg"))
+            out.save(os.path.join(PATH + "school" + school + "/", class_name + ".jpg"))
 
 
 async def get_date(date):

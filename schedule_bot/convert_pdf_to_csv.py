@@ -7,8 +7,8 @@ async def convert(filename: str):
     convertapi.convert(
         "csv",
         {
-            "File": "schedule_tables/" + filename,
+            "File": "schedule_tables/school14/" + filename,
             "Delimiter": "semicolon",
         },
         from_format="pdf",
-    ).save_files("schedule_tables/")
+    ).save_files("schedule_tables/school14/")
