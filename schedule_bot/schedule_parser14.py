@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 from convert_pdf_to_csv import convert
 from convert_text_to_image import make_image
 from db_users import get_users_id
+from database_users import get_id, del_id
+from vkbottle import CodeException
 import asyncio
 import glob
 import os
@@ -79,7 +81,6 @@ async def get_file(filename_and_link: Tuple[str, str]):
             async with session.get(link) as response:
                 async with aiofiles.open(PATH + filename, "wb") as schedule:
                     await schedule.write(await response.content.read())
-        await convert(filename)
         return True, filename, status
     else:
         return False, False, status
@@ -100,15 +101,21 @@ async def parse(bot):
                 await make_image(filename.split(), "14")
                 if status == "Update":
                     for user_id in await get_users_id("14"):
-                        await bot.api.messages.send(
-                            user_id=user_id,
-                            message="Появилось обновлённое расписание",
-                            random_id=0,
-                        )
+                        try:
+                            await bot.api.messages.send(
+                                user_id=user_id,
+                                message="Появилось обновлённое расписание",
+                                random_id=0,
+                            )
+                        except CodeException:
+                            print(user_id)
                 elif status == "New":
-                    for user_id in await get_users_id("14"):
-                        await bot.api.messages.send(
-                            user_id=user_id,
-                            message="Появилось новое расписание",
-                            random_id=0,
-                        )
+                    for user_id in await get_id():
+                        try:
+                            await bot.api.messages.send(
+                                user_id=user_id,
+                                message="Появилось новое расписание",
+                                random_id=0,
+                            )
+                        except CodeException:
+                            await del_id(user_id)
