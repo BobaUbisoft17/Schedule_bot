@@ -1,7 +1,7 @@
 import datetime
 from types import ModuleType
 from PIL import Image, ImageDraw, ImageFont
-from csv_parser import get_classes_schedules
+from pdf_parser import get_classes_schedules
 import os
 import glob
 
@@ -16,13 +16,20 @@ async def del_img(school):
         os.remove(img)
 
 
+async def get_schedules(school):
+    if school == "14":
+        return await get_classes_schedules()
+    """elif school == "40":
+        return await get_classes_schedule(school)"""
+
+
 async def make_image(date, school):
     """Фунция для создания изображения с расписанием."""
     await del_img(school)
     list_10_11 = []
     date_first_number = await get_date(date)
     next_date = await get_next_date(date)
-    for class_ in await get_classes_schedules(school):
+    for class_ in await get_schedules(school):
         class_name = class_.class_name
         list_schedule = class_.schedule
         bells = class_.bells
