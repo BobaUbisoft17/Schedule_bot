@@ -285,7 +285,7 @@ async def back(message: Message):
 @bot.on.private_message()
 async def other(message: Message):
     """Функция для обработки сообщений, на которые не настроены фильтры"""
-    await message.answer("Я вас не понимаю")
+    await message.answer("Я вас не понимаю|nПожалуйста, воспользуйтесь клавиатурой")
 
 
 def main():
