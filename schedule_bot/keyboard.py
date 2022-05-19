@@ -99,7 +99,7 @@ async def get_schedule_keyboard(payload):
         .row()
         .add(
             OpenLink(
-                "https://vk.com/@schedulebot14-pomosch-v-poluchenii-raspisaniya", "Помощь"
+                "https://vk.com/@schedulebot14-documentation", "Помощь"
             ),
             color=KeyboardButtonColor.SECONDARY,
         )
