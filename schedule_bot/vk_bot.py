@@ -37,6 +37,7 @@ from db_users import (
 from file_service import get_schedule_class
 from schedule_parser14 import parse14
 from schedule_parser40 import parse40
+import os
 
 
 class States_memory_class(BaseStateGroup):
@@ -397,5 +398,12 @@ def main():
     Функция запускает код бота, а вызывает функцию для запуска парсера,
     создвёт доп. процесс.
     """
+    try:
+        for dir1 in ["schedule_image", "schedule_tables"]:
+            for dir2 in ["school14", "school40"]:
+                os.makedirs(os.path.join(dir1, dir2))
+    except FileExistsError:
+        pass
+    
     create_table()
     bot.run_forever()
