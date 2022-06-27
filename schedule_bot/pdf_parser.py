@@ -1,3 +1,5 @@
+"""Файл для получения расписания из .pdf файлов"""
+
 from dataclasses import dataclass
 from typing import List, Tuple
 import pdfplumber
@@ -38,21 +40,21 @@ async def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, st
                 lessons = []
                 for row in range(len(table)):
                     if row == 0:
-                        lessons.append(
-                            [
-                                element
-                                for element in table[row]
-                                if element != "" and element != None
-                            ]
-                        )
+                        lesson = [
+                            element
+                            for element in table[row]
+                            if element != "" and element is not None
+                        ]
+                        if len(lesson) > 1:
+                            lessons.append(lesson)
                     else:
-                        lessons.append(
-                            [element for element in table[row] if element != None]
-                        )
+                        lesson = [element for element in table[row] if element is not None]
+                        if len(lesson) > 1:
+                            lessons.append(lesson)
                 list_tables.append(lessons)
     for table in list_tables:
         classnames, *schedule = table
-        classnames = await _fetch_classes_names(classnames)
+        # classnames = await _fetch_classes_names(classnames)
         schedule_bells, schedule = await _get_schedule_bells(schedule)
         classes_schedules = await _split_schedule_by_classes(len(classnames), schedule)
         schedules.append(
@@ -83,8 +85,12 @@ async def _get_schedule_bells(schedule: List) -> Tuple[List, List]:
     schedule_bells = []
     timetable = []
     for lesson in schedule:
-        schedule_bells.append(lesson[1])
-        timetable.append(lesson[2:])
+        if len(lesson[0]) == 1:
+            schedule_bells.append(lesson[1])
+            timetable.append(lesson[2:])
+        else:
+            schedule_bells.append(lesson[0])
+            timetable.append(lesson[1:])
     for i in range(len(schedule_bells)):
         true_bell = []
         if "\n" not in schedule_bells[i]:
@@ -143,7 +149,7 @@ async def _split_schedule_by_classes(classes_count: int, schedules: list) -> Lis
                             schedule[index].lower()
                             for _ in range(classes_count - count)
                         ]
-                        + schedule[index + 1 :]
+                        + schedule[index + 1:]
                     )
                 else:
                     schedule = (

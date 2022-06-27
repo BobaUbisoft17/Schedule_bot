@@ -1,3 +1,5 @@
+"""Файл для чтения .csv файлов."""
+
 import csv
 import glob
 import os
@@ -15,7 +17,7 @@ class ClassSchedule:
     bells: list
 
 
-async def get_classes_schedules(school) -> List[ClassSchedule]:
+async def get_classes_schedules(school: str) -> List[ClassSchedule]:
     """Получение расписаний всех классов из .csv файлов."""
     classes_schedules = []
     for file in await _get_csv_files(school):
@@ -48,7 +50,7 @@ async def _fetch_classes_schedules_from_csv(filepath: str) -> List[Tuple[str, st
     )
 
 
-async def _fetch_classes_names(classes_names_row: list):
+async def _fetch_classes_names(classes_names_row: list) -> List[str]:
     """Извлечение названий классов."""
     classes_names = []
     for cell in classes_names_row[1:]:
@@ -57,7 +59,7 @@ async def _fetch_classes_names(classes_names_row: list):
     return classes_names
 
 
-async def _get_schedule_bells(schedule: list):
+async def _get_schedule_bells(schedule: list) -> Tuple[List, List]:
     """Получение расписания перемен."""
     schedule_bells = []
     for i in range(len(schedule)):
@@ -109,7 +111,11 @@ async def _split_schedule_by_classes(classes_count: int, schedules: list):
                         count += 1
                     else:
                         index = schedule.index(lesson)
-                schedule = schedule[:index] + [schedule[index] for _ in range(classes_count - count)] + schedule[index:]
+                schedule = (
+                    schedule[:index]
+                    + [schedule[index] for _ in range(classes_count - count)]
+                    + schedule[index:]
+                )
             if schedule[i] == "" or schedule[i] == "-" or schedule[i] == ".":
                 schedule[i] = "нет урока"
             class_schedule.append(schedule[i])

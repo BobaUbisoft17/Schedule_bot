@@ -1,4 +1,5 @@
-from types import TracebackType
+"""Файл с клавиатурами"""
+
 from vkbottle import Keyboard, KeyboardButtonColor, Text, OpenLink
 
 
@@ -7,25 +8,13 @@ all_schools = [
     "40",
 ]
 
-school_payloads = [
-    {"cmd": "14"},
-    {"cmd": "40"}
-]
+school_payloads = [{"cmd": "14"}, {"cmd": "40"}]
 
-back1 = [
-    {"cmd": "141"},
-    {"cmd": "401"}
-]
+back1 = [{"cmd": "141"}, {"cmd": "401"}]
 
-back2 = [
-    {"cmd": "142"},
-    {"cmd": "402"}
-]
+back2 = [{"cmd": "142"}, {"cmd": "402"}]
 
-back3 = [
-    {"cmd": "143"},
-    {"cmd": "403"}
-]
+back3 = [{"cmd": "143"}, {"cmd": "403"}]
 
 parallel = [
     "5 классы",
@@ -39,34 +28,40 @@ parallel = [
 
 classes = {
     "14": {
-    "5": "АБВГДЕЖ",
-    "6": "АБВГДЕЖЗИК",
-    "7": "АБВГДЕЖЗ",
-    "8": "АБВГДЕЖЗ",
-    "9": "АБВГДЕЖЗИКЛ",
-    "10": "АБВ",
-    "11": "АБВ",
+        "5": "АБВГДЕЖ",
+        "6": "АБВГДЕЖЗИК",
+        "7": "АБВГДЕЖЗ",
+        "8": "АБВГДЕЖЗ",
+        "9": "АБВГДЕЖЗИКЛ",
+        "10": "АБВ",
+        "11": "АБВ",
     },
     "40": {
-    "5": "АБВГДЕЖЗИК",
-    "6": "АБВГДЕЖЗ",
-    "7": "АБВГДЕЖ",
-    "8": "АБВГДЕЖЗИКЛ",
-    "9": "АБВГДЕ",
-    "10": "АБ",
-    "11": "АБ",
+        "5": "АБВГДЕЖЗИК",
+        "6": "АБВГДЕЖЗ",
+        "7": "АБВГДЕЖ",
+        "8": "АБВГДЕЖЗИКЛ",
+        "9": "АБВГДЕ",
+        "10": "АБ",
+        "11": "АБ",
     },
 }
 
 
 all_classes_names = [
-    f"{number}{letter}" for school in all_schools for (number, letters) in classes[school].items() for letter in letters
+    f"{number}{letter}"
+    for school in all_schools
+    for (number, letters) in classes[school].items()
+    for letter in letters
 ]
 
 
 async def classes_names(school):
+    """Функция для создания клавиатуры классов."""
     class_names = [
-    f"{number}{letter}" for (number, letters) in classes[school].items() for letter in letters
+        f"{number}{letter}"
+        for (number, letters) in classes[school].items()
+        for letter in letters
     ]
     return class_names
 
@@ -81,13 +76,14 @@ kb_select_school = (
     )
     .row()
     .add(
-        Text("МАОУ 'СОШ №40'", {"cmd": "40"}), 
+        Text("МАОУ 'СОШ №40'", {"cmd": "40"}),
         color=KeyboardButtonColor.PRIMARY,
     )
 )
 
 
 async def get_schedule_keyboard(payload):
+    """Фунция для создания клавиатуры главного меню."""
     kb_get_schedule = (
         Keyboard()
         .add(
@@ -98,20 +94,17 @@ async def get_schedule_keyboard(payload):
         .add(Text("Настройки", payload), color=KeyboardButtonColor.SECONDARY)
         .row()
         .add(
-            OpenLink(
-                "https://vk.com/@schedulebot14-documentation", "Помощь"
-            ),
+            OpenLink("https://vk.com/@schedulebot14-documentation", "Помощь"),
             color=KeyboardButtonColor.SECONDARY,
         )
         .row()
-        .add(
-            Text("Назад", payload), color=KeyboardButtonColor.PRIMARY
-        )
+        .add(Text("Назад", payload), color=KeyboardButtonColor.PRIMARY)
     )
     return kb_get_schedule
 
 
 async def sub_keyboard(payload):
+    """Функция для создания клавиатуры подписки на рассыклу."""
     new_payload = payload[:-2] + "1" + payload[-2:]
     kb_subscribe_to_newsletter = (
         Keyboard()
@@ -126,6 +119,7 @@ async def sub_keyboard(payload):
 
 
 async def unsub_keyboard(payload):
+    """Функция для создания клавиатуры отписку от рассылки."""
     new_payload = payload[:-2] + "1" + payload[-2:]
     kb_unsubscribe_from_mailing_list = (
         Keyboard()
@@ -140,6 +134,7 @@ async def unsub_keyboard(payload):
 
 
 async def memory_class_keyboard(payload):
+    """Функция для создания клавиатуры для меню 'Запоминание класса'."""
     new_payload = payload[:-2] + "1" + payload[-2:]
     kb_memory_class = (
         Keyboard()
@@ -154,6 +149,9 @@ async def memory_class_keyboard(payload):
 
 
 async def change_class_keyboard(payload):
+    """Функция для создания клавиатуры для меню
+    изменения информации о классе пользователя.
+    """
     new_paylaod = payload[:-2] + "1" + payload[-2:]
     kb_change_class = (
         Keyboard()
@@ -166,12 +164,14 @@ async def change_class_keyboard(payload):
             Text("Удалить данные о моём классе", payload),
             color=KeyboardButtonColor.NEGATIVE,
         )
-        .row().add(Text("Назад", new_paylaod), color=KeyboardButtonColor.PRIMARY)
+        .row()
+        .add(Text("Назад", new_paylaod), color=KeyboardButtonColor.PRIMARY)
     )
     return kb_change_class
 
 
 async def settings_keyboard(payload):
+    """Функция для создания клавиатуры для меню настроек."""
     new_payload = payload[:-2] + "2" + payload[-2:]
     kb_settings = (
         Keyboard()
@@ -191,6 +191,7 @@ async def settings_keyboard(payload):
 
 
 async def parallels_keyboard(payload):
+    """Функция для создания клавиатуры параллелей."""
     new_payload = payload[:-2] + "2" + payload[-2:]
     kb_choice_parallel = Keyboard()
     for i in range(len(parallel)):
@@ -206,7 +207,7 @@ async def parallels_keyboard(payload):
 
 
 async def give_parallel(parallel, payload):
-    """Функция для генерации клавиатуры."""
+    """Функция для генерации клавиатуры классов определённой параллели."""
     school = payload.split(":")[1][1:3]
     new_payload = payload[:-2] + "3" + payload[-2:]
     kb_choice_class = Keyboard()

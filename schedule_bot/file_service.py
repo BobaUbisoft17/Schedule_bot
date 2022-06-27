@@ -1,3 +1,5 @@
+"""Файл для поиска фотографий класса определённой школы."""
+
 import glob
 
 
@@ -8,4 +10,8 @@ dict_of_schoolpath = {
 
 
 async def get_schedule_class(school, classname):
-    return [file for file in glob.glob("schedule_image/" + dict_of_schoolpath[school] + "/*.jpg") if classname in file]
+    return [
+        file
+        for file in glob.glob("schedule_image/" + dict_of_schoolpath[school] + "/*.jpg")
+        if classname in file
+    ]
