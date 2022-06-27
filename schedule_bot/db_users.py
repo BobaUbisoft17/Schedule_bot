@@ -1,11 +1,15 @@
+"""Файл для работы с БД."""
+
 import sqlite3
 
 
 def create_table():
+    """Функция для создания БД."""
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS users_db (
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS users_db (
         id INTEGER,
         school TEXT,
         class TEXT,
@@ -19,16 +23,19 @@ def create_table():
 
 async def add_id(user_id):
     """Функция для добавления пользователя в БД
-    
-       Функция принимает в качестве аогумнта id пользователя
-       и записывает в БД, оставляя остальные ячейки пустыми
+
+    Функция принимает в качестве аогумнта id пользователя
+    и записывает в БД, оставляя остальные ячейки пустыми
     """
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
     cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
     if cursor.fetchone() is None:
-        cursor.execute("INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)", [user_id, "", "", ""])
+        cursor.execute(
+            "INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)",
+            [user_id, "", "", ""],
+        )
         db.commit()
     cursor.close()
     db.close()
@@ -36,20 +43,25 @@ async def add_id(user_id):
 
 async def subscribe_on_newsletter(user_id, school):
     """Функция для подписки на рассылку.
-       
-       Функция принимает в качетсве аргумента id пользователя
-       и его школы. Если пользователя нет в БД, то функция записывает
-       его и его школу, иначе меняет значение в ячейке 'newsletter'
+
+    Функция принимает в качетсве аргумента id пользователя
+    и его школы. Если пользователя нет в БД, то функция записывает
+    его и его школу, иначе меняет значение в ячейке 'newsletter'
     """
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
     cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
     if cursor.fetchone() is None:
-        cursor.execute("INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)", [user_id, "", "", school])
+        cursor.execute(
+            "INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)",
+            [user_id, "", "", school],
+        )
         db.commit()
     else:
-        cursor.execute(f"UPDATE users_db SET newsletter='{school}' WHERE id='{user_id}'")
+        cursor.execute(
+            f"UPDATE users_db SET newsletter='{school}' WHERE id='{user_id}'"
+        )
         db.commit()
     cursor.close()
     db.close()
@@ -57,9 +69,9 @@ async def subscribe_on_newsletter(user_id, school):
 
 async def unsubscribe_on_newsletter(user_id):
     """Функция для отписки от рассылки.
-       
-       Функция принимает в качетсве аргумента id пользователя и
-       удаляет данные из ячейки 'newsletter'
+
+    Функция принимает в качетсве аргумента id пользователя и
+    удаляет данные из ячейки 'newsletter'
     """
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
@@ -72,25 +84,35 @@ async def unsubscribe_on_newsletter(user_id):
 
 async def change_user_class(user_id, school="", class_=""):
     """Функция запоминания класса, изменения и удаления класса.
-    
-       Функция в качестве аргумента принимает id, школу и класс пользователя,
-       после чего записывает/изменяет/удаляет эти данные.
+
+    Функция в качестве аргумента принимает id, школу и класс пользователя,
+    после чего записывает/изменяет/удаляет эти данные.
     """
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
     cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
     if cursor.fetchone() is None:
-        cursor.execute("SELECT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)", [user_id, school, class_, ""])
+        cursor.execute(
+            "INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)",
+            [user_id, school, class_, ""],
+        )
         db.commit()
     else:
-        cursor.execute(f"UPDATE users_db SET class='{class_}', school='{school}' WHERE id='{user_id}'")
+        cursor.execute(
+            f"UPDATE users_db SET class='{class_}', school='{school}' WHERE id='{user_id}'"
+        )
         db.commit()
     cursor.close()
     db.close()
 
 
 async def check_school_and_class(user_id, pld_school):
+    """Функция для проверки класса и школы пользователя.
+
+    Вызывается при отправления расписания по кнопке 'Узнать расписание' если в БД есть класс пользователя.
+    Проверяет значение школы со значением школы в payload, если совпадает, то возвращает True, иначе False.
+    """
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
@@ -100,7 +122,9 @@ async def check_school_and_class(user_id, pld_school):
         db.close()
         return False
     else:
-        school, class_ = list(cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id]))[0][1:3]
+        school, class_ = list(
+            cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
+        )[0][1:3]
         if class_ != "" and pld_school == school:
             cursor.close()
             db.close()
@@ -112,6 +136,10 @@ async def check_school_and_class(user_id, pld_school):
 
 
 async def check_class(user_id):
+    """Функция для проверки наличия данных о классе пользователя в БД.
+
+    Проверяет есть ли информация о классе пользователя и возвращает булевое значение в зависимости.
+    """
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
@@ -121,7 +149,12 @@ async def check_class(user_id):
         db.close()
         return False
     else:
-        if list(cursor.execute("SELECT class FROM users_db WHERE id=?", [user_id]))[0][0] != "":
+        if (
+            list(cursor.execute("SELECT class FROM users_db WHERE id=?", [user_id]))[0][
+                0
+            ]
+            != ""
+        ):
             cursor.close()
             db.close()
             return True
@@ -131,11 +164,8 @@ async def check_class(user_id):
             return False
 
 
-
 async def get_school_and_class(user_id):
-    """Функция для получения класса пользователя.
-    
-       """
+    """Функция для получения класса пользователя."""
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
@@ -148,10 +178,16 @@ async def get_school_and_class(user_id):
 
 
 async def check_user_subscription(user_id):
+    """Функция для проверки подписки пользователя на уведомления."""
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
-    if list(cursor.execute("SELECT newsletter FROM users_db WHERE id=?", [user_id]))[0][0] == "":
+    if (
+        list(cursor.execute("SELECT newsletter FROM users_db WHERE id=?", [user_id]))[
+            0
+        ][0]
+        == ""
+    ):
         cursor.close()
         db.close()
         return False
@@ -162,10 +198,16 @@ async def check_user_subscription(user_id):
 
 
 async def get_users_id(school):
+    """Функция для получения всех id-пользователей для уведомления о новом/обновлённом расписании."""
     db = sqlite3.connect("db_users.db")
     cursor = db.cursor()
 
-    users_id = [value[0] for value in cursor.execute("SELECT id FROM users_db WHERE newsletter=?", [school])]
+    users_id = [
+        value[0]
+        for value in cursor.execute(
+            "SELECT id FROM users_db WHERE newsletter=?", [school]
+        )
+    ]
     cursor.close()
     db.close()
     return users_id
