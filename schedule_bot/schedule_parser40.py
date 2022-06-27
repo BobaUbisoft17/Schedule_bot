@@ -72,7 +72,6 @@ async def get_odd_schedule(list_schedules: List) -> tuple([str, str]):
     schedules = []
     for schedule in list_schedules:
         schedules.append(schedule.find("a", class_="at_icon").get("href"))
-    # max_date = await max_date(schedules)
     max_date = sorted(
         schedules, key=lambda x: int(x.split("/")[-1].split()[0]), reverse=True
     )[0]

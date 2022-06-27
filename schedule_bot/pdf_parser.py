@@ -54,7 +54,6 @@ async def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, st
                 list_tables.append(lessons)
     for table in list_tables:
         classnames, *schedule = table
-        # classnames = await _fetch_classes_names(classnames)
         schedule_bells, schedule = await _get_schedule_bells(schedule)
         classes_schedules = await _split_schedule_by_classes(len(classnames), schedule)
         schedules.append(
@@ -69,15 +68,6 @@ async def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, st
 async def _get_pdf_files() -> List[str]:
     """Полученеия .pdf файлов в текущей директории."""
     return glob.glob("schedule_tables/school14/*.pdf")
-
-
-async def _fetch_classes_names(classes_names_row: list) -> List[str]:
-    """Извлечение названий классов."""
-    classes_names = []
-    for cell in classes_names_row[1:]:
-        if cell != "":
-            classes_names.append(cell.split()[0].split("(")[0])
-    return classes_names
 
 
 async def _get_schedule_bells(schedule: List) -> Tuple[List, List]:
