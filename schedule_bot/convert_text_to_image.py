@@ -1,7 +1,10 @@
+"""Файл для создания изображений с расписанием."""
+
 import datetime
-from types import ModuleType
+from typing import List
 from PIL import Image, ImageDraw, ImageFont
-from pdf_parser import get_classes_schedules
+import pdf_parser
+import xls_parser
 import os
 import glob
 
@@ -16,11 +19,11 @@ async def del_img(school):
         os.remove(img)
 
 
-async def get_schedules(school):
+async def get_schedules(school: str) -> List:
     if school == "14":
-        return await get_classes_schedules()
-    """elif school == "40":
-        return await get_classes_schedule(school)"""
+        return await pdf_parser.get_classes_schedules()
+    elif school == "40":
+        return await xls_parser.get_classes_schedules()
 
 
 async def make_image(date, school):
@@ -65,7 +68,11 @@ async def make_image(date, school):
             for i in range(len(list_schedule)):
                 lesson = Image.new("RGB", (1442, pix_for_one_lesson), "white")
                 insert_for_item_name = ImageDraw.Draw(lesson)
-                if list_schedule[i] == "нет урока" or list_schedule[i] == "":
+                if (
+                    list_schedule[i] == "нет урока"
+                    or list_schedule[i] == ""
+                    or list_schedule[i] == "нет урока "
+                ):
                     insert_for_item_name.text(
                         (145, 15),
                         list_schedule[i][:20],
@@ -97,7 +104,11 @@ async def make_image(date, school):
             for i in range(len(bells)):
                 lesson = Image.new("RGB", (1442, 143), "white")
                 insert_for_item_name = ImageDraw.Draw(lesson)
-                if list_schedule[i] == "нет урока" or list_schedule[i] == "":
+                if (
+                    list_schedule[i] == "нет урока"
+                    or list_schedule[i] == ""
+                    or list_schedule[i] == "нет урока "
+                ):
                     insert_for_item_name.text(
                         (145, 15),
                         list_schedule[i][:20],
@@ -127,7 +138,10 @@ async def make_image(date, school):
                 count_hight += 143
 
         filename = f"{class_name}.jpg"
-        schedules = [os.path.split(path)[-1] for path in glob.glob(PATH + "school" + school + "/*.jpg")]
+        schedules = [
+            os.path.split(path)[-1]
+            for path in glob.glob(PATH + "school" + school + "/*.jpg")
+        ]
         if filename in schedules:
             out.save(os.path.join(PATH + "school" + school + "/", class_name + "2.jpg"))
         else:
