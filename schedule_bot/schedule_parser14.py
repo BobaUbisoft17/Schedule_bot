@@ -1,9 +1,9 @@
+"""Файл для парсинга расписания на сайте школы №14"""
+
 from typing import Optional, Tuple
 from bs4 import BeautifulSoup
-from convert_pdf_to_csv import convert
 from convert_text_to_image import make_image
-from db_users import get_users_id
-from database_users import get_id, del_id
+from db_users import get_users_id, unsubscribe_on_newsletter
 from vkbottle import CodeException
 import asyncio
 import glob
@@ -74,8 +74,8 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
 async def get_file(filename_and_link: Tuple[str, str]):
     """Сохранение файла с расписанием."""
     filename, link = (i for i in filename_and_link)
-    bools, status = await check_for_innovation(filename)
-    if bools:
+    bool_meaning, status = await check_for_innovation(filename)
+    if bool_meaning:
         connector = aiohttp.TCPConnector(force_close=True)
         async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(link) as response:
@@ -86,7 +86,7 @@ async def get_file(filename_and_link: Tuple[str, str]):
         return False, False, status
 
 
-async def parse(bot):
+async def parse14(bot):
     """Проверка ответа сервера и запись данных в бд."""
     while True:
         csv_files = glob.glob(PATH + "*.pdf")
@@ -96,8 +96,10 @@ async def parse(bot):
             await asyncio.sleep(1800)
         html, status = await get_html(URL)
         if status == 200:
-            bools, filename, status = await get_file(await get_link_and_filename(html))
-            if bools:
+            bool_meaning, filename, status = await get_file(
+                await get_link_and_filename(html)
+            )
+            if bool_meaning:
                 await make_image(filename.split(), "14")
                 if status == "Update":
                     for user_id in await get_users_id("14"):
@@ -108,9 +110,9 @@ async def parse(bot):
                                 random_id=0,
                             )
                         except CodeException:
-                            print(user_id)
+                            await unsubscribe_on_newsletter(user_id)
                 elif status == "New":
-                    for user_id in await get_id():
+                    for user_id in await get_users_id("14"):
                         try:
                             await bot.api.messages.send(
                                 user_id=user_id,
@@ -118,4 +120,4 @@ async def parse(bot):
                                 random_id=0,
                             )
                         except CodeException:
-                            await del_id(user_id)
+                            await unsubscribe_on_newsletter(user_id)
