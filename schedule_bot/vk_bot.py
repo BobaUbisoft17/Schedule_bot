@@ -1,6 +1,5 @@
 """Файл для работы с VK"""
 
-from config import VKBOTTOKEN
 from vkbottle.bot import Bot, Message
 from vkbottle import PhotoMessageUploader, BaseStateGroup
 import logging
@@ -49,7 +48,7 @@ class States_change_class(BaseStateGroup):
     class_name = 0
 
 
-bot = Bot(token=VKBOTTOKEN)
+bot = Bot(token=os.getenv("VKBOTTOKEN"))
 bot.loop_wrapper.add_task(parse14(bot))
 bot.loop_wrapper.add_task(parse40(bot))
 logging.basicConfig(level=logging.INFO)
