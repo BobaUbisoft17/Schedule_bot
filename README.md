@@ -21,10 +21,11 @@
 Для использования бота не понадобится никаких сверхспособностей, всё интуитивно понятно и просто. Весь диалог строится по принципу «вопрос-ответ». На протяжении всего диалога вас будут сопровождать клавиатуры, которые будет выдавать вам бот. Если вы всё же столкнулись с трудностями, то вы всегда можете нажать на кнопку «Помощь» и перейти к статье, в которой детально описано взаимодействие с ботом.
 
 ## Реализация проекта
-Schedule_bot - VK-бот написаный на Python с использованием асинхронных библиотек ([vkbottle](https://github.com/vkbottle/vkbottle), [aiohttp](https://github.com/aio-libs/aiohttp)).
+Schedule_bot - VK-бот написаный на Python с использованием асинхронного кода.
 
   + Библиотека для работы в VK - [vkbottle](https://github.com/vkbottle/vkbottle)
   + Библиотека для парсинга - [aiohttp](https://github.com/aio-libs/aiohttp)
+  + Библиотека для работа базой данных - [aiosqlite](https://github.com/omnilib/aiosqlite)
   + Библиотека для чтения .pdf файлов - [pdfplumber](https://github.com/jsvine/pdfplumber)
   + Библиотека для чтения .xls файлов - [xlrd](https://github.com/python-excel/xlrd/blob/master/docs/index.rst)
   + Библиотека для упрощения чтения html - [bs4](https://www.crummy.com/software/BeautifulSoup/)
