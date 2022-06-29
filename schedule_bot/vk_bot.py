@@ -38,6 +38,7 @@ from file_service import get_schedule_class
 from schedule_parser14 import parse14
 from schedule_parser40 import parse40
 import os
+import asyncio
 
 
 class States_memory_class(BaseStateGroup):
@@ -392,6 +393,11 @@ async def other(message: Message):
     await message.answer("Я вас не понимаю.\nПожалуйста, воспользуйтесь клавиатурой")
 
 
+def create_loop():
+    loop = asyncio.get_event_loop_policy().get_event_loop()
+    return loop
+
+
 def main():
     """Функция, отвечающая за запуск бота.
 
@@ -404,6 +410,6 @@ def main():
                 os.makedirs(os.path.join(dir1, dir2))
     except FileExistsError:
         pass
-    
-    create_table()
+
+    create_loop().run_until_complete(create_table())
     bot.run_forever()
