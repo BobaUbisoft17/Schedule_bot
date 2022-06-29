@@ -1,10 +1,7 @@
 """Файл для создания изображений с расписанием."""
 
 import datetime
-from typing import List
 from PIL import Image, ImageDraw, ImageFont
-import pdf_parser
-import xls_parser
 import os
 import glob
 
@@ -19,20 +16,13 @@ async def del_img(school):
         os.remove(img)
 
 
-async def get_schedules(school: str) -> List:
-    if school == "14":
-        return await pdf_parser.get_classes_schedules()
-    elif school == "40":
-        return await xls_parser.get_classes_schedules()
-
-
-async def make_image(date, school):
+async def make_image(schedules, date, school):
     """Фунция для создания изображения с расписанием."""
     await del_img(school)
     list_10_11 = []
     date_first_number = await get_date(date)
     next_date = await get_next_date(date)
-    for class_ in await get_schedules(school):
+    for class_ in schedules:
         class_name = class_.class_name
         list_schedule = class_.schedule
         bells = class_.bells

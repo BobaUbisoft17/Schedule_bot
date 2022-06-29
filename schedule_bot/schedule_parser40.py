@@ -11,6 +11,8 @@ from vkbottle import CodeException
 from db_users import get_users_id, unsubscribe_on_newsletter
 from convert_text_to_image import make_image
 
+import xls_parser
+
 
 URL = "https://s11028.edu35.ru/2013-06-12-15-17-31/raspisanie"
 HEADERS = {
@@ -132,7 +134,8 @@ async def parse40(bot) -> None:
                 await get_link_and_filename(code)
             )
             if bool_meaning:
-                await make_image(date.split(), "40")
+                schedules = await xls_parser.get_classes_schedules()
+                await make_image(schedules, date.split(), "40")
                 if status == "Update":
                     for user_id in await get_users_id("40"):
                         try:

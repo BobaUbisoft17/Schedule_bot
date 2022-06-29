@@ -11,6 +11,8 @@ import os
 import aiohttp
 import aiofiles
 
+import pdf_parser
+
 URL = "https://s11018.edu35.ru/obuchayushchimsya/raspisanie-urokov"
 HEADERS = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
@@ -100,7 +102,8 @@ async def parse14(bot):
                 await get_link_and_filename(html)
             )
             if bool_meaning:
-                await make_image(filename.split(), "14")
+                schedules = await pdf_parser.get_classes_schedules()
+                await make_image(schedules, filename.split(), "14")
                 if status == "Update":
                     for user_id in await get_users_id("14"):
                         try:
