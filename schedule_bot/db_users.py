@@ -1,7 +1,6 @@
 """Файл для работы с БД."""
 
 import aiosqlite
-import sqlite3
 
 
 async def create_table():
@@ -25,12 +24,10 @@ async def add_id(user_id):
     и записывает в БД, оставляя остальные ячейки пустыми
     """
     async with aiosqlite.connect("db_users.db") as db:
-        async with db.execute("SELECT * FROM users_db WHERE id=?", [user_id]) as cursor:
+        async with db.cursor() as cursor:
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
-                await db.execute(
-                    "INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)",
-                    [user_id, "", "", ""],
-                )
+                await cursor.execute("NSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)", [user_id, "", "", ""])
                 await db.commit()
 
 
@@ -42,17 +39,13 @@ async def subscribe_on_newsletter(user_id, school):
     его и его школу, иначе меняет значение в ячейке 'newsletter'
     """
     async with aiosqlite.connect("db_users.db") as db:
-        async with db.execute("SELECT * FROM users_db WHERE id=?", [user_id]) as cursor:
+        async with db.cursor() as cursor:
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
-                await db.execute(
-                    "INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)",
-                    [user_id, "", "", school],
-                )
+                await cursor.execute("INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)", [user_id, "", "", school])
                 await db.commit()
             else:
-                await db.execute(
-                    f"UPDATE users_db SET newsletter='{school}' WHERE id='{user_id}'"
-                )
+                await cursor.execute(f"UPDATE users_db SET newsletter='{school}' WHERE id='{user_id}'")
                 await db.commit()
 
 
@@ -74,17 +67,13 @@ async def change_user_class(user_id, school="", class_=""):
     после чего записывает/изменяет/удаляет эти данные.
     """
     async with aiosqlite.connect("db_users.db") as db:
-        async with db.execute("SELECT * FROM users_db WHERE id=?", [user_id]) as cursor:
+        async with db.cursor() as cursor:
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
-                await db.execute(
-                    "INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)",
-                    [user_id, school, class_, ""],
-                )
+                await cursor.execute("INSERT INTO users_db (id, school, class, newsletter) VALUES(?, ?, ?, ?)", [user_id, school, class_, ""])
                 await db.commit()
             else:
-                await db.execute(
-                    f"UPDATE users_db SET class='{class_}', school='{school}' WHERE id='{user_id}'"
-                )
+                await cursor.execute(f"UPDATE users_db SET class='{class_}', school='{school}' WHERE id='{user_id}'")
                 await db.commit()
 
 
@@ -95,16 +84,17 @@ async def check_school_and_class(user_id, pld_school):
     Проверяет значение школы со значением школы в payload, если совпадает, то возвращает True, иначе False.
     """
     async with aiosqlite.connect("db_users.db") as db:
-        async with db.execute("SELECT * FROM users_db WHERE id=?", [user_id]) as cursor:
+        async with db.cursor() as cursor:
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
                 return False
             else:
-                async with db.execute("SELECT * FROM users_db WHERE id=?", [user_id]) as user_data:
-                    school, class_ = (await user_data.fetchone())[1:3]
-                    if class_ != "" and pld_school == school:
+                await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
+                school, class_ = (await cursor.fetchone())[1:3]
+                if class_ != "" and pld_school == school:
                         return True
-                    else:
-                        return False
+                else:
+                    return False
 
 
 async def check_class(user_id):
@@ -113,30 +103,32 @@ async def check_class(user_id):
     Проверяет есть ли информация о классе пользователя и возвращает булевое значение в зависимости.
     """
     async with aiosqlite.connect("db_users.db") as db:
-        async with db.execute("SELECT class FROM users_db WHERE id=?", [user_id]) as cursor:
+        async with db.cursor() as cursor:
+            await cursor.execute("SELECT class FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
                 return False
             else:
-                async with db.execute("SELECT class FROM users_db WHERE id=?", [user_id]) as user_data:
-                    if (await user_data.fetchone())[0] != "":
+                await cursor.execute("SELECT class FROM users_db WHERE id=?", [user_id])
+                if (await cursor.fetchone())[0] != "":
                         return True
-                    else:
-                        return False
+                else:
+                    return False
 
 
 async def get_school_and_class(user_id):
     """Функция для получения класса пользователя."""
     async with aiosqlite.connect("db_users.db") as db:
-        async with db.execute("SELECT * FROM users_db WHERE id=?", [user_id]) as cursor:
-            info = await cursor.fetchone()
-            school, class_ = info[1:3]
+        async with db.cursor() as cursor:
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
+            school, class_ = (await cursor.fetchone())[1:3]
             return school, class_
 
 
 async def check_user_subscription(user_id):
     """Функция для проверки подписки пользователя на уведомления."""
     async with aiosqlite.connect("db_users.db") as db:
-        async with db.execute("SELECT newsletter FROM users_db WHERE id=?", [user_id]) as cursor:
+        async with db.cursor() as cursor:
+            await cursor.execute("SELECT newsletter FROM users_db WHERE id=?", [user_id])
             if (await cursor.fetchone())[0] == "":
                 return False
             else:
@@ -146,6 +138,7 @@ async def check_user_subscription(user_id):
 async def get_users_id(school):
     """Функция для получения всех id-пользователей для уведомления о новом/обновлённом расписании."""
     async with aiosqlite.connect("db_users.db") as db:
-        async with db.execute("SELECT id FROM users_db WHERE newsletter=?", [school]) as cursor:
+        async with db.cursor() as cursor:
+            await cursor.execute("SELECT id FROM users_db WHERE newsletter=?", [school])
             users_id = [value[0] for value in await cursor.fetchall()]
             return users_id
