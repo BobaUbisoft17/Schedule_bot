@@ -3,8 +3,6 @@
 import datetime
 from typing import List
 from PIL import Image, ImageDraw, ImageFont
-import pdf_parser
-import xls_parser
 import os
 import glob
 
@@ -19,23 +17,16 @@ async def del_img(school: str) -> None:
         os.remove(img)
 
 
-async def get_schedules(school: str) -> List:
-    if school == "14":
-        return await pdf_parser.get_classes_schedules()
-    elif school == "40":
-        return await xls_parser.get_classes_schedules()
-
-
-async def make_image(date: List, school: str) -> None:
+async def make_image(schedules: List, date: List) -> List:
     """Фунция для создания изображения с расписанием."""
-    await del_img(school)
+    images_and_classes = []
     day, month = map(int, date[0].split(".")[:2])
     year = int(datetime.datetime.now().strftime("%Y"))
     date = datetime.date(year=year, month=month, day=day)
     list_10_11 = []
     date_first_number = await get_date(date)
     next_date = await get_next_date(date)
-    for class_ in await get_schedules(school):
+    for class_ in schedules:
         class_name = class_.class_name
         list_schedule = class_.schedule
         bells = class_.bells
@@ -139,16 +130,23 @@ async def make_image(date: List, school: str) -> None:
                     )
                 out.paste(lesson, (0, count_hight))
                 count_hight += 143
+        images_and_classes.append([out, class_name])
+    return images_and_classes
 
+
+async def save_img(images_and_classes: List, school: str):
+    for element in images_and_classes:
+        img, class_name = element
         filename = f"{class_name}.jpg"
         schedules = [
             os.path.split(path)[-1]
             for path in glob.glob(PATH + "school" + school + "/*.jpg")
         ]
+        
         if filename in schedules:
-            out.save(os.path.join(PATH + "school" + school + "/", class_name + "2.jpg"))
+            img.save(os.path.join(PATH + "school" + school + "/", class_name + "2.jpg"))
         else:
-            out.save(os.path.join(PATH + "school" + school + "/", class_name + ".jpg"))
+            img.save(os.path.join(PATH + "school" + school + "/", class_name + ".jpg"))
 
 
 async def get_date(date: datetime.date) -> str:
