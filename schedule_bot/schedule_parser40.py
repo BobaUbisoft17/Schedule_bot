@@ -45,31 +45,15 @@ async def get_html(url: str) -> tuple([str, int]):
 
 
 async def get_link_and_filename(html_code: str) -> tuple([str, str]):
+    links_and_filenames = []
+    class_schedule = ["even", "odd"]
     soup = BeautifulSoup(html_code, "lxml")
-    schedule_even = await get_even_schedule(soup.find_all("tr", class_="even"))
-    schedule_odd = await get_odd_schedule(soup.find_all("tr", class_="odd"))
-    return schedule_even, schedule_odd
+    for class_ in class_schedule:
+        links_and_filenames.append(await get_schedule(soup.find_all("tr", class_=class_)))
+    return links_and_filenames
 
 
-async def get_even_schedule(list_schedules: List) -> tuple([str, str]):
-    schedules = []
-    for schedule in list_schedules:
-        schedules.append(schedule.find("a", class_="at_icon").get("href"))
-    max_date = sorted(
-        schedules, key=lambda x: int(x.split("/")[-1].split()[0]), reverse=True
-    )[0]
-    min_date = sorted(schedules, key=lambda x: int(x.split("/")[-1].split()[0]))[0]
-    if min_date.split("/")[-1].split()[1] == "1" and (
-        max_date.split("/")[-1].split()[1] == "30"
-        or max_date.split("/")[-1].split()[1] == "31"
-        or max_date.split("/")[-1].split()[1] == "28"
-        or max_date.split("/")[-1].split()[1] == "27"
-    ):
-        max_date = min_date
-    return max_date.split("/")[-1], max_date
-
-
-async def get_odd_schedule(list_schedules: List) -> tuple([str, str]):
+async def get_schedule(list_schedules: List) -> tuple([str, str]):
     schedules = []
     for schedule in list_schedules:
         schedules.append(schedule.find("a", class_="at_icon").get("href"))
