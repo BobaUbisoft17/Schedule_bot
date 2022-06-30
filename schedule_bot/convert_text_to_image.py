@@ -12,7 +12,7 @@ import glob
 PATH = "schedule_image/"
 
 
-async def del_img(school):
+async def del_img(school: str) -> None:
     """Функция для удаления старого расписания."""
     imgs = glob.glob(PATH + "school" + school + "/*")
     for img in imgs:
@@ -26,9 +26,12 @@ async def get_schedules(school: str) -> List:
         return await xls_parser.get_classes_schedules()
 
 
-async def make_image(date, school):
+async def make_image(date: List, school: str) -> None:
     """Фунция для создания изображения с расписанием."""
     await del_img(school)
+    day, month = map(int, date[0].split(".")[:2])
+    year = int(datetime.datetime.now().strftime("%Y"))
+    date = datetime.date(year=year, month=month, day=day)
     list_10_11 = []
     date_first_number = await get_date(date)
     next_date = await get_next_date(date)
@@ -148,49 +151,20 @@ async def make_image(date, school):
             out.save(os.path.join(PATH + "school" + school + "/", class_name + ".jpg"))
 
 
-async def get_date(date):
+async def get_date(date: datetime.date) -> str:
     """Функция для получения даты расписания."""
-    if len(date[0].split(".")) == 2:
-        day, month = date[0].split(".")
-        if len(day) < 2:
-            day = "0" + day
-        if len(month) < 2:
-            month = "0" + month
-        year = datetime.datetime.now().strftime("%Y")
-        return f"{day}.{month}.{year} - {await get_week_day(day, month, year)}"
-    else:
-        day, month, year = date[0].split(".")
-        if len(day) < 2:
-            day = "0" + day
-        if len(month) < 2:
-            month = "0" + month
-        year = datetime.datetime.now().strftime("%Y")
-        return f"{day}.{month}.{year} - {await get_week_day(day, month, year)}"
+    return f"{date.strftime('%d.%m.%Y')} - {await get_week_day(date)}"
 
 
-async def get_next_date(date):
+async def get_next_date(date: datetime.date) -> str:
     """Функция для получения даты расписания + 1 день."""
 
     """В основном используется для получения даты расписания на субботу."""
-    if len(date[0].split(".")) == 2:
-        day, month = date[0].split(".")
-        year = datetime.datetime.now().strftime("%Y")
-    else:
-        day, month, year = date[0].split(".")
-    if len(day) < 2:
-        day = "0" + day
-    if len(month) < 2:
-        month = "0" + month
-    year = datetime.datetime.now().strftime("%Y")
-    day, month, year = (
-        (
-            datetime.date(int(year), int(month), int(day)) + datetime.timedelta(days=1)
-        ).strftime("%d.%m.%Y")
-    ).split(".")
-    return f"{day}.{month}.{year} - {await get_week_day(day, month, year)}"
+    next_day = date + datetime.timedelta(days=1)
+    return f"{next_day.strftime('%d.%m.%Y')} - {await get_week_day(next_day)}"
 
 
-async def get_week_day(day, month, year):
+async def get_week_day(date: datetime.date) -> str:
     days_of_week = {
         "Sunday": "воскресенье",
         "Monday": "понедельник",
@@ -200,4 +174,4 @@ async def get_week_day(day, month, year):
         "Friday": "пятница",
         "Saturday": "суббота",
     }
-    return days_of_week[datetime.date(int(year), int(month), int(day)).strftime("%A")]
+    return days_of_week[date.strftime("%A")]
