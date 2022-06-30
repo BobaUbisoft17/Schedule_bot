@@ -2,8 +2,9 @@
 
 from typing import Optional, Tuple
 from bs4 import BeautifulSoup
-from convert_text_to_image import make_image
-from db_users import get_users_id, unsubscribe_on_newsletter
+from convert_text_to_image import del_img, make_image, save_img
+from pdf_parser import get_classes_schedules
+from mailing import mailing_list
 from vkbottle import CodeException
 import asyncio
 import glob
@@ -100,24 +101,7 @@ async def parse14(bot):
                 await get_link_and_filename(html)
             )
             if bool_meaning:
-                await make_image(filename.split(), "14")
-                if status == "Update":
-                    for user_id in await get_users_id("14"):
-                        try:
-                            await bot.api.messages.send(
-                                user_id=user_id,
-                                message="Появилось обновлённое расписание",
-                                random_id=0,
-                            )
-                        except CodeException:
-                            await unsubscribe_on_newsletter(user_id)
-                elif status == "New":
-                    for user_id in await get_users_id("14"):
-                        try:
-                            await bot.api.messages.send(
-                                user_id=user_id,
-                                message="Появилось новое расписание",
-                                random_id=0,
-                            )
-                        except CodeException:
-                            await unsubscribe_on_newsletter(user_id)
+                schedules = await get_classes_schedules()
+                await del_img("14")
+                await save_img(await make_image(schedules, filename.split()), "14")
+                await mailing_list(bot, status, "14")

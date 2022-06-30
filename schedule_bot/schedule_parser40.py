@@ -8,8 +8,9 @@ import aiofiles
 import glob
 import os
 from vkbottle import CodeException
-from db_users import get_users_id, unsubscribe_on_newsletter
-from convert_text_to_image import make_image
+from mailing import mailing_list
+from xls_parser import get_classes_schedules
+from convert_text_to_image import make_image, del_img, save_img
 
 
 URL = "https://s11028.edu35.ru/2013-06-12-15-17-31/raspisanie"
@@ -132,24 +133,7 @@ async def parse40(bot) -> None:
                 await get_link_and_filename(code)
             )
             if bool_meaning:
-                await make_image(date.split(), "40")
-                if status == "Update":
-                    for user_id in await get_users_id("40"):
-                        try:
-                            await bot.api.messages.send(
-                                user_id=user_id,
-                                message="Появилось обновлённое расписание",
-                                random_id=0,
-                            )
-                        except CodeException:
-                            await unsubscribe_on_newsletter(user_id)
-                elif status == "New":
-                    for user_id in await get_users_id("40"):
-                        try:
-                            await bot.api.messages.send(
-                                user_id=user_id,
-                                message="Появилось новое расписание",
-                                random_id=0,
-                            )
-                        except CodeException:
-                            await unsubscribe_on_newsletter(user_id)
+                schedules = await get_classes_schedules()
+                await del_img("40")
+                await save_img(await make_image(schedules, date.split()), "40")
+                await mailing_list(bot, status, "40")
