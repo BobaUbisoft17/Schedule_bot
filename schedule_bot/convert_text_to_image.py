@@ -37,100 +37,56 @@ async def make_image(schedules: List, date: List) -> List:
             date = date_first_number
             list_10_11.append(class_name)
         # create an image
-        out = Image.new("RGB", (1442, 1600), "white")
+        img = Image.new("RGB", (1442, 1600), "white")
         if len(list_schedule) < len(bells):
             list_schedule += ["нет урока"] * (len(bells) - len(list_schedule))
 
         # get a font
         font_to_heading = ImageFont.truetype("arial.ttf", 80)
-        fnt = ImageFont.truetype("arial.ttf", 60)
+        font_to_bells = ImageFont.truetype("arial.ttf", 60)
         font_to_lessons = ImageFont.truetype("arial.ttf", 70)
         # get a drawing context
-        out_2 = Image.new("RGB", (1442, 400), "white")
-        add_blocks = ImageDraw.Draw(out_2)
-        add_blocks.multiline_text(
+        block_with_date_and_classname = Image.new("RGB", (1442, 400), "white")
+        add_block = ImageDraw.Draw(block_with_date_and_classname)
+        add_block.multiline_text(
             (140, 125),
             f"{date}\n{class_name}",
             font=font_to_heading,
             fill="grey",
             spacing=25,
         )
-        out.paste(out_2, (0, 0))
+        img.paste(block_with_date_and_classname, (0, 0))
         count_hight = 400
         if len(list_schedule) > 7:
-            pix_for_one_lesson = 1100 // len(list_schedule)
-            for i in range(len(list_schedule)):
-                lesson = Image.new("RGB", (1442, pix_for_one_lesson), "white")
-                insert_for_item_name = ImageDraw.Draw(lesson)
-                if (
-                    list_schedule[i] == "нет урока"
-                    or list_schedule[i] == ""
-                    or list_schedule[i] == "нет урока "
-                ):
-                    insert_for_item_name.text(
-                        (145, 15),
-                        list_schedule[i][:20],
-                        font=font_to_lessons,
-                        fill="grey",
-                    )
-                    insert_for_item_name.text(
-                        (970, 30), bells[i], font=fnt, fill="grey"
-                    )
-                    insert_for_item_name.line(
-                        [(150, 100), (1292, 100)], fill="grey", width=4
-                    )
-                else:
-                    insert_for_item_name.text(
-                        (145, 15),
-                        list_schedule[i][:20],
-                        font=font_to_lessons,
-                        fill="black",
-                    )
-                    insert_for_item_name.text(
-                        (970, 30), bells[i], font=fnt, fill="grey"
-                    )
-                    insert_for_item_name.line(
-                        [(150, 100), (1292, 100)], fill="grey", width=4
-                    )
-                out.paste(lesson, (0, count_hight))
-                count_hight += pix_for_one_lesson
+            hight_for_one_block = 1100 // len(list_schedule)
         else:
-            for i in range(len(bells)):
-                lesson = Image.new("RGB", (1442, 143), "white")
-                insert_for_item_name = ImageDraw.Draw(lesson)
-                if (
-                    list_schedule[i] == "нет урока"
-                    or list_schedule[i] == ""
-                    or list_schedule[i] == "нет урока "
-                ):
-                    insert_for_item_name.text(
-                        (145, 15),
-                        list_schedule[i][:20],
-                        font=font_to_lessons,
-                        fill="grey",
-                    )
-                    insert_for_item_name.text(
-                        (970, 30), bells[i], font=fnt, fill="grey"
-                    )
-                    insert_for_item_name.line(
-                        [(150, 100), (1292, 100)], fill="grey", width=4
-                    )
-                else:
-                    insert_for_item_name.text(
-                        (145, 15),
-                        list_schedule[i][:20],
-                        font=font_to_lessons,
-                        fill="black",
-                    )
-                    insert_for_item_name.text(
-                        (970, 30), bells[i], font=fnt, fill="grey"
-                    )
-                    insert_for_item_name.line(
-                        [(150, 100), (1292, 100)], fill="grey", width=4
-                    )
-                out.paste(lesson, (0, count_hight))
-                count_hight += 143
-        images_and_classes.append([out, class_name])
+            hight_for_one_block = 143
+        for i in range(len(list_schedule)):
+            block_with_lesson_and_bell = Image.new(
+                mode="RGB", 
+                size=(1442, hight_for_one_block), 
+                color="white"
+            )
+            insert_in_block_with_lesson_and_bell = ImageDraw.Draw(block_with_lesson_and_bell)
+            if list_schedule[i] in ("нет урока", "нет урока ", ""):
+                fill = "grey"
+            else:
+                fill = "black"
+            insert_in_block_with_lesson_and_bell.text(
+                (145, 15),
+                list_schedule[i][:20],
+                font=font_to_lessons,
+                fill=fill,
+            )
+            insert_in_block_with_lesson_and_bell.text(
+                (970, 30), bells[i], font=font_to_bells, fill="grey"
+            )
+            insert_in_block_with_lesson_and_bell.line(
+                [(150, 100), (1292, 100)], fill="grey", width=4
+            )
+            img.paste(block_with_lesson_and_bell, (0, count_hight))
+            count_hight += hight_for_one_block
+        images_and_classes.append([img, class_name])
     return images_and_classes
 
 
