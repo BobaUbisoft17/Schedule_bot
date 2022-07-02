@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from convert_text_to_image import del_img, make_image, save_img
 from pdf_parser import get_classes_schedules
 from mailing import mailing_list
-from vkbottle import CodeException
 import asyncio
 import glob
 import os

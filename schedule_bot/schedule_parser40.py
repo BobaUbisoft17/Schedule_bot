@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 import aiofiles
 import glob
 import os
-from vkbottle import CodeException
 from mailing import mailing_list
 from xls_parser import get_classes_schedules
 from convert_text_to_image import make_image, del_img, save_img
