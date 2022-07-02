@@ -13,7 +13,7 @@ class ClassSchedule:
     bells: list
 
 
-async def get_classes_schedules() -> List[ClassSchedule]:
+async def get_classes_schedules() -> List[ClassSchedule, ]:
     """Получение расписаний всех классов из .pdf файлов."""
     classes_schedules = []
     for file in await _get_pdf_files():
@@ -45,12 +45,10 @@ async def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, st
                             for element in table[row]
                             if element != "" and element is not None
                         ]
-                        if len(lesson) > 1:
-                            lessons.append(lesson)
                     else:
                         lesson = [element for element in table[row] if element is not None]
-                        if len(lesson) > 1:
-                            lessons.append(lesson)
+                    if len(lesson) > 1:
+                        lessons.append(lesson)
                 list_tables.append(lessons)
     for table in list_tables:
         classnames, *schedule = table
@@ -70,7 +68,7 @@ async def _get_pdf_files() -> List[str]:
     return glob.glob("schedule_tables/school14/*.pdf")
 
 
-async def _get_schedule_bells(schedule: List) -> Tuple[List, List]:
+async def _get_schedule_bells(schedule: List) -> Tuple[List[str, ], List[List[str, ], ]]:
     """Получение расписания перемен."""
     schedule_bells = []
     timetable = []
@@ -84,27 +82,19 @@ async def _get_schedule_bells(schedule: List) -> Tuple[List, List]:
     for i in range(len(schedule_bells)):
         true_bell = []
         if "\n" not in schedule_bells[i]:
-            for bell in schedule_bells[i].split("-"):
-                true_bell_schedule = []
-                bell = bell.replace(":", ".")
-                for time in bell.split("."):
-                    if len(time) < 2 and time != "":
-                        time = "0" + time
-                    elif time == "":
-                        time = "не указано"
-                    true_bell_schedule.append(time)
-                true_bell.append(".".join([i for i in true_bell_schedule]))
-        if "\n" in schedule_bells[i]:
-            for bell in schedule_bells[i].split("-\n"):
-                true_bell_schedule = []
-                bell = bell.replace(":", ".")
-                for time in bell.split("."):
-                    if len(time) < 2 and time != "":
-                        time = "0" + time
-                    elif time == "":
-                        time = "не указано"
-                    true_bell_schedule.append(time)
-                true_bell.append(".".join([i for i in true_bell_schedule]))
+            separator = "-"
+        else:
+            separator = "-\n"
+        for bell in schedule_bells[i].split(separator):
+            true_bell_schedule = []
+            bell = bell.replace(":", ".")
+            for time in bell.split("."):
+                if len(time) < 2 and time != "":
+                    time = "0" + time
+                elif time == "":
+                    time = "не указано"
+                true_bell_schedule.append(time)
+            true_bell.append(".".join([i for i in true_bell_schedule]))
         schedule_bells[i] = "-".join([i for i in true_bell])
     return schedule_bells, timetable
 

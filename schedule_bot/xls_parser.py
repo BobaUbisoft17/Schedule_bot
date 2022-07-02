@@ -80,31 +80,22 @@ async def collect_schedule(rows_schedule: List, amount_cols: int, index: int) ->
     """Функция для сборки расписания по классам"""
     schedule = []
     if len(rows_schedule) % 2 == 0:
-        for i in range(0, len(rows_schedule), 2):
-            lesson = rows_schedule[i][index]
-            if lesson == "":
-                lesson = "нет урока"
-            parlors = []
-            for parlor in rows_schedule[i + 1][index: index + amount_cols]:
-                if parlor != "" and parlor != "/":
-                    if type(parlor) is float:
-                        parlors.append(str(int(parlor)))
-                    else:
-                        parlors.append(parlor)
-            schedule.append(f"{lesson.lower()} {', '.join(parlors)}")
+        len_rows = len(rows_schedule)
     else:
-        for i in range(0, len(rows_schedule) - 1, 2):
-            lesson = rows_schedule[i][index]
-            if lesson == "":
-                lesson = "нет урока"
-            parlors = []
-            for parlor in rows_schedule[i + 1][index: index + amount_cols]:
-                if parlor != "" and parlor != "/":
-                    if type(parlor) is float:
-                        parlors.append(str(int(parlor)))
-                    else:
-                        parlors.append(parlor)
-            schedule.append(f"{lesson.lower()} {', '.join(parlors)}")
+        len_rows = len(rows_schedule) - 1
+    for i in range(0, len_rows, 2):
+        lesson = rows_schedule[i][index]
+        if lesson == "":
+            lesson = "нет урока"
+        parlors = []
+        for parlor in rows_schedule[i + 1][index: index + amount_cols]:
+            if parlor != "" and parlor != "/":
+                if type(parlor) is float:
+                    parlors.append(str(int(parlor)))
+                else:
+                    parlors.append(parlor)
+        schedule.append(f"{lesson.lower()} {', '.join(parlors)}")
+    if len(rows_schedule) % 2 != 0:
         schedule.append("нет урока")
     return schedule
 
