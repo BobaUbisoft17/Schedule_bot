@@ -165,11 +165,14 @@ async def choice_parallel(message: Message):
             await PhotoMessageUploader(bot.api).upload(file)
             for file in sorted(file_path)
         ]
-        await message.answer(
-            f"Расписание {class_}",
-            attachment=photo,
-            keyboard=await get_schedule_keyboard(message.payload),
-        )
+        if len(photo) != 0:
+            await message.answer(
+                f"Расписание {class_}",
+                attachment=photo,
+                keyboard=await get_schedule_keyboard(message.payload),
+            )
+        else:
+            await message.answer(message="Для вашего класса расписание не найдено", keyboard=await get_schedule_keyboard(message.payload))
     else:
         await message.answer(
             "Выберите вашу параллель",
@@ -275,11 +278,14 @@ async def get_schedule(message: Message):
     photo = [
         await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)
     ]
-    await message.answer(
-        f"Расписание {message.text}",
-        attachment=photo,
-        keyboard=await get_schedule_keyboard(message.payload),
-    )
+    if len(photo) != 0:
+        await message.answer(
+            f"Расписание {message.text}",
+            attachment=photo,
+            keyboard=await get_schedule_keyboard(message.payload),
+        )
+    else:
+        await message.answer(message="Для вашего класса расписание не найдено", keyboard=await get_schedule_keyboard(message.payload))
 
 
 @bot.on.private_message(lev="Запомнить мой класс", payload=school_payloads)
