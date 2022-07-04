@@ -2,6 +2,7 @@
 
 from typing import Optional, Tuple
 from bs4 import BeautifulSoup
+from vkbottle.bot import Bot
 from convert_text_to_image import del_img, make_image, save_img
 from pdf_parser import get_classes_schedules
 from mailing import mailing_list
@@ -19,7 +20,7 @@ HEADERS = {
 PATH = "schedule_tables/school14/"
 
 
-async def check_for_innovation(filename: str):
+async def check_for_innovation(filename: str) -> Tuple[bool, str]:
     csv_files = glob.glob(PATH + "*.pdf")
     if csv_files == []:
         return True, "New"
@@ -36,7 +37,7 @@ async def check_for_innovation(filename: str):
                 return False, "No"
 
 
-async def get_html(url: str, params: Optional[dict] = None):
+async def get_html(url: str, params: Optional[dict] = None) -> Tuple[str, int]:
     """Получение кода страницы."""
     connector = aiohttp.TCPConnector(force_close=True)
     async with aiohttp.ClientSession(connector=connector) as session:
@@ -71,7 +72,7 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
     return filename, link
 
 
-async def get_file(filename_and_link: Tuple[str, str]):
+async def get_file(filename_and_link: Tuple[str, str]) -> Tuple[bool, str, str]:
     """Сохранение файла с расписанием."""
     filename, link = (i for i in filename_and_link)
     bool_meaning, status = await check_for_innovation(filename)
@@ -83,10 +84,10 @@ async def get_file(filename_and_link: Tuple[str, str]):
                     await schedule.write(await response.content.read())
         return True, filename, status
     else:
-        return False, False, status
+        return False, "", status
 
 
-async def parse14(bot):
+async def parse14(bot: Bot) -> None:
     """Проверка ответа сервера и запись данных в бд."""
     while True:
         csv_files = glob.glob(PATH + "*.pdf")

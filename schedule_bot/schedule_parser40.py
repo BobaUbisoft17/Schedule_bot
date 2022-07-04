@@ -2,8 +2,9 @@
 
 import asyncio
 from typing import List, Tuple
-import aiohttp
 from bs4 import BeautifulSoup
+from vkbottle.bot import Bot
+import aiohttp
 import aiofiles
 import glob
 import os
@@ -20,7 +21,7 @@ HEADERS = {
 PATH = "schedule_tables/school40/"
 
 
-async def check_for_innovation(filename: str) -> tuple([bool, str]):
+async def check_for_innovation(filename: str) -> Tuple[bool, str]:
     xls_files = glob.glob(PATH + "*.xls")
     if xls_files == []:
         return True, "New"
@@ -35,7 +36,7 @@ async def check_for_innovation(filename: str) -> tuple([bool, str]):
             return False, "No"
 
 
-async def get_html(url: str) -> tuple([str, int]):
+async def get_html(url: str) -> Tuple[str, int]:
     connector = aiohttp.TCPConnector(force_close=True)
     async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(url) as response:
@@ -43,7 +44,7 @@ async def get_html(url: str) -> tuple([str, int]):
             return html_code, response.status
 
 
-async def get_link_and_filename(html_code: str) -> tuple([str, str]):
+async def get_link_and_filename(html_code: str) -> List[Tuple[str, str]]:
     links_and_filenames = []
     class_schedule = ["even", "odd"]
     soup = BeautifulSoup(html_code, "lxml")
@@ -52,7 +53,7 @@ async def get_link_and_filename(html_code: str) -> tuple([str, str]):
     return links_and_filenames
 
 
-async def get_schedule(list_schedules: List) -> tuple([str, str]):
+async def get_schedule(list_schedules: List) -> Tuple[str, str]:
     schedules = []
     for schedule in list_schedules:
         schedules.append(schedule.find("a", class_="at_icon").get("href"))
@@ -88,7 +89,7 @@ async def get_date(filename: str) -> str:
     return f"{filename[0]}.{month[filename[1]]} "
 
 
-async def get_files(schedules: Tuple) -> tuple([bool, str, str]):
+async def get_files(schedules: Tuple) -> Tuple[bool, str, str]:
     for schedule in schedules:
         filename, link = schedule
         bool_meaning, status = await check_for_innovation(filename.split("/")[-1])
@@ -104,7 +105,7 @@ async def get_files(schedules: Tuple) -> tuple([bool, str, str]):
     return True, date, status
 
 
-async def parse40(bot) -> None:
+async def parse40(bot: Bot) -> None:
     while True:
         if glob.glob(PATH + "*.xls") == []:
             await asyncio.sleep(1)

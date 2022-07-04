@@ -1,5 +1,6 @@
 """Файл для поиска фотографий класса определённой школы."""
 
+from typing import List
 import glob
 
 
@@ -9,7 +10,7 @@ dict_of_schoolpath = {
 }
 
 
-async def get_schedule_class(school, classname):
+async def get_schedule_class(school: str, classname: str) -> List[str]:
     return [
         file
         for file in glob.glob("schedule_image/" + dict_of_schoolpath[school] + "/*.jpg")

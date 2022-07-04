@@ -1,6 +1,7 @@
 """Файл с клавиатурами"""
 
 from vkbottle import Keyboard, KeyboardButtonColor, Text, OpenLink
+from typing import List
 
 
 all_schools = [
@@ -56,7 +57,7 @@ all_classes_names = [
 ]
 
 
-async def classes_names(school):
+async def classes_names(school: str) -> List[str]:
     """Функция для создания клавиатуры классов."""
     class_names = [
         f"{number}{letter}"
@@ -82,7 +83,7 @@ kb_select_school = (
 )
 
 
-async def get_schedule_keyboard(payload):
+async def get_schedule_keyboard(payload: str) -> Keyboard:
     """Фунция для создания клавиатуры главного меню."""
     kb_get_schedule = (
         Keyboard()
@@ -103,7 +104,7 @@ async def get_schedule_keyboard(payload):
     return kb_get_schedule
 
 
-async def sub_keyboard(payload):
+async def sub_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры подписки на рассыклу."""
     new_payload = payload[:-2] + "1" + payload[-2:]
     kb_subscribe_to_newsletter = (
@@ -118,7 +119,7 @@ async def sub_keyboard(payload):
     return kb_subscribe_to_newsletter
 
 
-async def unsub_keyboard(payload):
+async def unsub_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры отписку от рассылки."""
     new_payload = payload[:-2] + "1" + payload[-2:]
     kb_unsubscribe_from_mailing_list = (
@@ -133,7 +134,7 @@ async def unsub_keyboard(payload):
     return kb_unsubscribe_from_mailing_list
 
 
-async def memory_class_keyboard(payload):
+async def memory_class_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры для меню 'Запоминание класса'."""
     new_payload = payload[:-2] + "1" + payload[-2:]
     kb_memory_class = (
@@ -148,7 +149,7 @@ async def memory_class_keyboard(payload):
     return kb_memory_class
 
 
-async def change_class_keyboard(payload):
+async def change_class_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры для меню
     изменения информации о классе пользователя.
     """
@@ -170,7 +171,7 @@ async def change_class_keyboard(payload):
     return kb_change_class
 
 
-async def settings_keyboard(payload):
+async def settings_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры для меню настроек."""
     new_payload = payload[:-2] + "2" + payload[-2:]
     kb_settings = (
@@ -190,7 +191,7 @@ async def settings_keyboard(payload):
     return kb_settings
 
 
-async def parallels_keyboard(payload):
+async def parallels_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры параллелей."""
     new_payload = payload[:-2] + "2" + payload[-2:]
     kb_choice_parallel = Keyboard()
@@ -206,7 +207,7 @@ async def parallels_keyboard(payload):
     return kb_choice_parallel
 
 
-async def give_parallel(parallel, payload):
+async def give_parallel(parallel: str, payload: str) -> Keyboard:
     """Функция для генерации клавиатуры классов определённой параллели."""
     school = payload.split(":")[1][1:3]
     new_payload = payload[:-2] + "3" + payload[-2:]

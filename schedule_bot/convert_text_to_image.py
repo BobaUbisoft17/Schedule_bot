@@ -1,13 +1,21 @@
 """Файл для создания изображений с расписанием."""
 
 import datetime
-from typing import List
+from typing import List, Tuple
 from PIL import Image, ImageDraw, ImageFont
+from dataclasses import dataclass
 import os
 import glob
 
 
 PATH = "schedule_image/"
+
+
+@dataclass
+class Schedule:
+    class_name: str
+    schedule: list
+    bells: list
 
 
 async def del_img(school: str) -> None:
@@ -17,7 +25,7 @@ async def del_img(school: str) -> None:
         os.remove(img)
 
 
-async def make_image(schedules: List, date: List) -> List:
+async def make_image(schedules: List[Schedule], date: List[str]) -> List[Tuple[Image.Image, str]]:
     """Фунция для создания изображения с расписанием."""
     images_and_classes = []
     day, month = map(int, date[0].split(".")[:2])
@@ -90,7 +98,7 @@ async def make_image(schedules: List, date: List) -> List:
     return images_and_classes
 
 
-async def save_img(images_and_classes: List, school: str):
+async def save_img(images_and_classes: List[Tuple[Image.Image, str]], school: str) -> None:
     for element in images_and_classes:
         img, class_name = element
         filename = f"{class_name}.jpg"

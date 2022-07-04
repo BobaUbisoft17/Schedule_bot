@@ -1,26 +1,19 @@
 """Файл для получения расписания из .pdf файлов"""
 
-from dataclasses import dataclass
+from convert_text_to_image import Schedule
 from typing import List, Tuple
 import pdfplumber
 import glob
 
 
-@dataclass
-class ClassSchedule:
-    class_name: str
-    schedule: list
-    bells: list
-
-
-async def get_classes_schedules() -> List[ClassSchedule, ]:
+async def get_classes_schedules() -> List[Schedule]:
     """Получение расписаний всех классов из .pdf файлов."""
     classes_schedules = []
     for file in await _get_pdf_files():
         for table in await _fetch_classes_schedules_from_pdf(file):
             for class_ in table:
                 classes_schedules.append(
-                    ClassSchedule(
+                    Schedule(
                         class_name=class_[0], schedule=class_[1], bells=class_[2]
                     )
                 )
@@ -29,7 +22,6 @@ async def get_classes_schedules() -> List[ClassSchedule, ]:
 
 async def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, str]]:
     """Получение расписаний классов из .pdf файла."""
-    tables = []
     schedules = []
     with pdfplumber.open(filename) as pdf:
         list_tables = []
@@ -68,7 +60,7 @@ async def _get_pdf_files() -> List[str]:
     return glob.glob("schedule_tables/school14/*.pdf")
 
 
-async def _get_schedule_bells(schedule: List) -> Tuple[List[str, ], List[List[str, ], ]]:
+async def _get_schedule_bells(schedule: List) -> Tuple[List[str], List[List[str]]]:
     """Получение расписания перемен."""
     schedule_bells = []
     timetable = []
@@ -99,7 +91,7 @@ async def _get_schedule_bells(schedule: List) -> Tuple[List[str, ], List[List[st
     return schedule_bells, timetable
 
 
-async def _split_schedule_by_classes(classes_count: int, schedules: list) -> List[List]:
+async def _split_schedule_by_classes(classes_count: int, schedules: list) -> List[List[str]]:
     """Распределение расписания по классам."""
     classes_schedules = []
     for i in range(classes_count):
@@ -150,7 +142,7 @@ async def _split_schedule_by_classes(classes_count: int, schedules: list) -> Lis
 
 async def _join_classes_schedule_with_bells(
     classnames: list, bells: list, schedules: list
-) -> List[List]:
+) -> List[List[str]]:
     """Объединение классов, звонков и расписания."""
     schedule = []
     for i in range(len(classnames)):

@@ -1,5 +1,6 @@
 from db_users import get_users_id, unsubscribe_on_newsletter
 from vkbottle import CodeException
+from vkbottle.bot import Bot
 
 
 status_messages = {
@@ -8,7 +9,7 @@ status_messages = {
 }
 
 
-async def mailing_list(bot, status: str, school: str):
+async def mailing_list(bot: Bot, status: str, school: str) -> None:
     message = status_messages[status]
     for user_id in await get_users_id(school):
         try:
