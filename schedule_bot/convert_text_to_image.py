@@ -18,22 +18,22 @@ class Schedule:
     bells: list
 
 
-async def del_img(school: str) -> None:
+def del_img(school: str) -> None:
     """Функция для удаления старого расписания."""
     imgs = glob.glob(PATH + "school" + school + "/*")
     for img in imgs:
         os.remove(img)
 
 
-async def make_image(schedules: List[Schedule], date: List[str]) -> List[Tuple[Image.Image, str]]:
+def make_image(schedules: List[Schedule], date: List[str]) -> List[Tuple[Image.Image, str]]:
     """Фунция для создания изображения с расписанием."""
     images_and_classes = []
     day, month = map(int, date[0].split(".")[:2])
     year = int(datetime.datetime.now().strftime("%Y"))
     date = datetime.date(year=year, month=month, day=day)
     list_10_11 = []
-    date_first_number = await get_date(date)
-    next_date = await get_next_date(date)
+    date_first_number = get_date(date)
+    next_date = get_next_date(date)
     for class_ in schedules:
         class_name = class_.class_name
         list_schedule = class_.schedule
@@ -98,7 +98,7 @@ async def make_image(schedules: List[Schedule], date: List[str]) -> List[Tuple[I
     return images_and_classes
 
 
-async def save_img(images_and_classes: List[Tuple[Image.Image, str]], school: str) -> None:
+def save_img(images_and_classes: List[Tuple[Image.Image, str]], school: str) -> None:
     for element in images_and_classes:
         img, class_name = element
         filename = f"{class_name}.jpg"
@@ -113,20 +113,20 @@ async def save_img(images_and_classes: List[Tuple[Image.Image, str]], school: st
             img.save(os.path.join(PATH + "school" + school + "/", class_name + ".jpg"))
 
 
-async def get_date(date: datetime.date) -> str:
+def get_date(date: datetime.date) -> str:
     """Функция для получения даты расписания."""
-    return f"{date.strftime('%d.%m.%Y')} - {await get_week_day(date)}"
+    return f"{date.strftime('%d.%m.%Y')} - {get_week_day(date)}"
 
 
-async def get_next_date(date: datetime.date) -> str:
+def get_next_date(date: datetime.date) -> str:
     """Функция для получения даты расписания + 1 день."""
 
     """В основном используется для получения даты расписания на субботу."""
     next_day = date + datetime.timedelta(days=1)
-    return f"{next_day.strftime('%d.%m.%Y')} - {await get_week_day(next_day)}"
+    return f"{next_day.strftime('%d.%m.%Y')} - {get_week_day(next_day)}"
 
 
-async def get_week_day(date: datetime.date) -> str:
+def get_week_day(date: datetime.date) -> str:
     days_of_week = {
         "Sunday": "воскресенье",
         "Monday": "понедельник",

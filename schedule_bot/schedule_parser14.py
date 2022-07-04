@@ -101,7 +101,7 @@ async def parse14(bot: Bot) -> None:
                 await get_link_and_filename(html)
             )
             if bool_meaning:
-                schedules = await get_classes_schedules()
-                await del_img("14")
-                await save_img(await make_image(schedules, filename.split()), "14")
+                schedules = get_classes_schedules()
+                del_img("14")
+                save_img(make_image(schedules, filename.split()), "14")
                 await mailing_list(bot, status, "14")
