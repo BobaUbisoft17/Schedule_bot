@@ -1,33 +1,38 @@
-"""Файл для получения расписания из .xls файлов"""
+"""Файл для получения расписания из .xls файлов."""
+
+import glob
+from typing import List, Tuple
 
 from convert_text_to_image import Schedule
-from typing import List, Tuple
+
 import xlrd
-import glob
 
 
 PATH = "schedule_tables/school40/"
 
 
 def get_files() -> List[str]:
-    """Фунция для получения названий .xls файлов в директории"""
-    xls_files = glob.glob(PATH + "*.xls")
-    return xls_files
+    """Фунция для получения названий .xls файлов в директории."""
+    return glob.glob(PATH + "*.xls")
 
 
 def get_classes_schedules() -> List[Schedule]:
-    """Функция для записи расписания в dataclass"""
+    """Функция для записи расписания в dataclass."""
     classes_schedules = []
     for file in get_files():
         for table in read_file(file):
             classes_schedules.append(
-                Schedule(class_name=table[0], schedule=table[1], bells=table[2])
+                Schedule(
+                    class_name=table[0],
+                    schedule=table[1],
+                    bells=table[2]
+                )
             )
     return classes_schedules
 
 
 def read_file(file: str) -> List[Tuple[str, List[str], List[str]]]:
-    """Функция для считывания файла и сортировки данных"""
+    """Функция для считывания файла и сортировки данных."""
     book = xlrd.open_workbook(file)
     sheet = book.sheet_by_index(0)
     row_classes = [class_.upper() for class_ in sheet.row_values(2)]
@@ -42,35 +47,42 @@ def read_file(file: str) -> List[Tuple[str, List[str], List[str]]]:
 
 
 def get_classnames(row_classnames: List[str]) -> List[str]:
-    """Функция для получения названий классов"""
+    """Функция для получения названий классов."""
     classnames = [class_.upper() for class_ in set(row_classnames)]
     classnames.remove("")
     return sorted(classnames, key=lambda x: (int(x[:-1]), x[-1]))
 
 
-def get_class_and_amount_cols(classnames: List[str], row_classes: List[str]) -> List[Tuple[str, int]]:
-    """Функция для получения информации о количестве столбцов, которые принадлежат отдельному классу"""
+def get_class_and_amount_cols(
+    classnames: List[str], row_classes: List[str]
+) -> List[Tuple[str, int]]:
+    """Функция для получения информации о количестве столбцов,\
+    которые принадлежат отдельному классу."""
     class_and_amount_cols = []
     for class_ in classnames:
         count_cols = 1
         index = row_classes.index(class_)
-        while len(row_classes) - 1 >= index + 1 and row_classes[index + 1] == "":
+        while (len(row_classes) - 1 >= index + 1) and (
+         row_classes[index + 1] == ""
+        ):
             count_cols += 1
             index += 1
         class_and_amount_cols.append([class_, count_cols])
     return class_and_amount_cols
 
 
-def get_lessons(sheet) -> List[List[str]]:
-    """Функция для получения строк с расписанием"""
+def get_lessons(sheet: xlrd.sheet.Sheet) -> List[List[str]]:
+    """Функция для получения строк с расписанием."""
     schedules = []
     for row in range(3, sheet.nrows):
         schedules.append(sheet.row_values(row)[3:])
     return schedules
 
 
-def collect_schedule(rows_schedule: List[List[str]], amount_cols: int, index: int) -> List[str]:
-    """Функция для сборки расписания по классам"""
+def collect_schedule(
+    rows_schedule: List[List[str]], amount_cols: int, index: int
+) -> List[str]:
+    """Функция для сборки расписания по классам."""
     schedule = []
     if len(rows_schedule) % 2 == 0:
         len_rows = len(rows_schedule)
@@ -93,8 +105,10 @@ def collect_schedule(rows_schedule: List[List[str]], amount_cols: int, index: in
     return schedule
 
 
-def get_sorted_schedule(class_and_amount_cols: List[Tuple[str, int]], schedules: List[List[str]]) -> List[List[str]]:
-    """Функция для сортировки расписания для классов"""
+def get_sorted_schedule(
+    class_and_amount_cols: List[Tuple[str, int]], schedules: List[List[str]]
+) -> List[List[str]]:
+    """Функция для сортировки расписания для классов."""
     schedules_and_office = []
     index = 0
     for class_ in class_and_amount_cols:
@@ -105,8 +119,8 @@ def get_sorted_schedule(class_and_amount_cols: List[Tuple[str, int]], schedules:
     return schedules_and_office
 
 
-def get_schedule_bells(sheet) -> List[str]:
-    """Функция для получения расписания звонков из файла"""
+def get_schedule_bells(sheet: xlrd.sheet.Sheet) -> List[str]:
+    """Функция для получения расписания звонков из файла."""
     bells = []
     list_bells = sheet.col_values(2)
     for element in list_bells[3:]:
@@ -115,8 +129,10 @@ def get_schedule_bells(sheet) -> List[str]:
     return bells
 
 
-def group_schedule_classname_bells(classnames: List[str], schedules: List[str], bells: List[str]) -> List[Tuple[str, List[str], List[str]]]:
-    """Функция для объединения звонков, классов и уроков"""
+def group_schedule_classname_bells(
+    classnames: List[str], schedules: List[str], bells: List[str]
+) -> List[Tuple[str, List[str], List[str]]]:
+    """Функция для объединения звонков, классов и уроков."""
     group_schedule = []
     for i in range(len(classnames)):
         group_schedule.append([classnames[i], schedules[i], bells])

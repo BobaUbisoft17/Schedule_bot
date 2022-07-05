@@ -1,7 +1,8 @@
-"""Файл с клавиатурами"""
+"""Файл с клавиатурами."""
 
-from vkbottle import Keyboard, KeyboardButtonColor, Text, OpenLink
 from typing import List
+
+from vkbottle import Keyboard, KeyboardButtonColor, OpenLink, Text
 
 
 all_schools = [
@@ -59,12 +60,11 @@ all_classes_names = [
 
 async def classes_names(school: str) -> List[str]:
     """Функция для создания клавиатуры классов."""
-    class_names = [
+    return [
         f"{number}{letter}"
         for (number, letters) in classes[school].items()
         for letter in letters
     ]
-    return class_names
 
 
 hide_keyboard = Keyboard()
@@ -85,7 +85,7 @@ kb_select_school = (
 
 async def get_schedule_keyboard(payload: str) -> Keyboard:
     """Фунция для создания клавиатуры главного меню."""
-    kb_get_schedule = (
+    return (
         Keyboard()
         .add(
             Text("Узнать расписание", payload),
@@ -101,13 +101,12 @@ async def get_schedule_keyboard(payload: str) -> Keyboard:
         .row()
         .add(Text("Назад", payload), color=KeyboardButtonColor.PRIMARY)
     )
-    return kb_get_schedule
 
 
 async def sub_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры подписки на рассыклу."""
     new_payload = payload[:-2] + "1" + payload[-2:]
-    kb_subscribe_to_newsletter = (
+    return (
         Keyboard()
         .add(
             Text("Подписаться на рассылку", payload),
@@ -116,13 +115,12 @@ async def sub_keyboard(payload: str) -> Keyboard:
         .row()
         .add(Text("Назад", new_payload), color=KeyboardButtonColor.PRIMARY)
     )
-    return kb_subscribe_to_newsletter
 
 
 async def unsub_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры отписку от рассылки."""
     new_payload = payload[:-2] + "1" + payload[-2:]
-    kb_unsubscribe_from_mailing_list = (
+    return (
         Keyboard()
         .add(
             Text("Отписаться от рассылки", payload),
@@ -131,13 +129,12 @@ async def unsub_keyboard(payload: str) -> Keyboard:
         .row()
         .add(Text("Назад", new_payload), color=KeyboardButtonColor.PRIMARY)
     )
-    return kb_unsubscribe_from_mailing_list
 
 
 async def memory_class_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры для меню 'Запоминание класса'."""
     new_payload = payload[:-2] + "1" + payload[-2:]
-    kb_memory_class = (
+    return (
         Keyboard()
         .add(
             Text("Запомнить мой класс", payload),
@@ -146,15 +143,13 @@ async def memory_class_keyboard(payload: str) -> Keyboard:
         .row()
         .add(Text("Назад", new_payload), color=KeyboardButtonColor.PRIMARY)
     )
-    return kb_memory_class
 
 
 async def change_class_keyboard(payload: str) -> Keyboard:
-    """Функция для создания клавиатуры для меню
-    изменения информации о классе пользователя.
-    """
+    """Функция для создания клавиатуры для меню \
+       изменения информации о классе пользователя."""
     new_paylaod = payload[:-2] + "1" + payload[-2:]
-    kb_change_class = (
+    return (
         Keyboard()
         .add(
             Text("Изменить класс", payload),
@@ -168,13 +163,12 @@ async def change_class_keyboard(payload: str) -> Keyboard:
         .row()
         .add(Text("Назад", new_paylaod), color=KeyboardButtonColor.PRIMARY)
     )
-    return kb_change_class
 
 
 async def settings_keyboard(payload: str) -> Keyboard:
     """Функция для создания клавиатуры для меню настроек."""
     new_payload = payload[:-2] + "2" + payload[-2:]
-    kb_settings = (
+    return (
         Keyboard()
         .add(
             Text("Настроить уведомления", payload),
@@ -188,7 +182,6 @@ async def settings_keyboard(payload: str) -> Keyboard:
         .row()
         .add(Text("Назад", new_payload), color=KeyboardButtonColor.PRIMARY)
     )
-    return kb_settings
 
 
 async def parallels_keyboard(payload: str) -> Keyboard:

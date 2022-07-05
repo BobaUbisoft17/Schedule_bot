@@ -1,9 +1,11 @@
-"""Файл для получения расписания из .pdf файлов"""
+"""Файл для получения расписания из .pdf файлов."""
+
+import glob
+from typing import List, Tuple
 
 from convert_text_to_image import Schedule
-from typing import List, Tuple
+
 import pdfplumber
-import glob
 
 
 def get_classes_schedules() -> List[Schedule]:
@@ -14,10 +16,12 @@ def get_classes_schedules() -> List[Schedule]:
             for class_ in table:
                 classes_schedules.append(
                     Schedule(
-                        class_name=class_[0], schedule=class_[1], bells=class_[2]
+                        class_name=class_[0],
+                        schedule=class_[1],
+                        bells=class_[2]
                     )
                 )
-        return classes_schedules
+    return classes_schedules
 
 
 def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, str]]:
@@ -38,14 +42,21 @@ def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, str]]:
                             if element != "" and element is not None
                         ]
                     else:
-                        lesson = [element for element in table[row] if element is not None]
+                        lesson = [
+                            element
+                            for element in table[row]
+                            if element is not None
+                        ]
                     if len(lesson) > 1:
                         lessons.append(lesson)
                 list_tables.append(lessons)
     for table in list_tables:
         classnames, *schedule = table
         schedule_bells, schedule = _get_schedule_bells(schedule)
-        classes_schedules =  _split_schedule_by_classes(len(classnames), schedule)
+        classes_schedules = _split_schedule_by_classes(
+                                len(classnames),
+                                schedule
+                            )
         schedules.append(
             _join_classes_schedule_with_bells(
                 classnames, schedule_bells, classes_schedules
@@ -86,12 +97,14 @@ def _get_schedule_bells(schedule: List) -> Tuple[List[str], List[List[str]]]:
                 elif time == "":
                     time = "не указано"
                 true_bell_schedule.append(time)
-            true_bell.append(".".join([i for i in true_bell_schedule]))
-        schedule_bells[i] = "-".join([i for i in true_bell])
+            true_bell.append(".".join(list(true_bell_schedule)))
+        schedule_bells[i] = "-".join(list(true_bell))
     return schedule_bells, timetable
 
 
-def _split_schedule_by_classes(classes_count: int, schedules: list) -> List[List[str]]:
+def _split_schedule_by_classes(
+    classes_count: int, schedules: list
+) -> List[List[str]]:
     """Распределение расписания по классам."""
     classes_schedules = []
     for i in range(classes_count):
@@ -100,9 +113,8 @@ def _split_schedule_by_classes(classes_count: int, schedules: list) -> List[List
         message_index = 0
         count_pass = 0
         for schedule in schedules:
-            if ("классный час" in schedule or "Классный час" in schedule) and len(
-                schedule
-            ) == 1:
+            if ("классный час" in schedule or "Классный час" in schedule)\
+             and len(schedule) == 1:
                 schedule *= len(classes_count)
             if len(schedule) < classes_count and len(schedule) != 1:
                 if big_message == "":

@@ -1,26 +1,30 @@
-"""Файл для парсинга расписания на сайте школы №14"""
+"""Файл для парсинга расписания на сайте школы №14."""
 
-from typing import Optional, Tuple
-from bs4 import BeautifulSoup
-from vkbottle.bot import Bot
-from convert_text_to_image import del_img, make_image, save_img
-from pdf_parser import get_classes_schedules
-from mailing import mailing_list
 import asyncio
 import glob
 import os
-import aiohttp
+from typing import Optional, Tuple
+
 import aiofiles
 
+import aiohttp
+
+from bs4 import BeautifulSoup
+
+from convert_text_to_image import del_img, make_image, save_img
+
+from mailing import mailing_list
+
+from pdf_parser import get_classes_schedules
+
+from vkbottle.bot import Bot
+
 URL = "https://s11018.edu35.ru/obuchayushchimsya/raspisanie-urokov"
-HEADERS = {
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
-    "accept": "*/*",
-}
 PATH = "schedule_tables/school14/"
 
 
 async def check_for_innovation(filename: str) -> Tuple[bool, str]:
+    """Функция для проверки актуальности расписания."""
     csv_files = glob.glob(PATH + "*.pdf")
     if csv_files == []:
         return True, "New"
@@ -33,8 +37,7 @@ async def check_for_innovation(filename: str) -> Tuple[bool, str]:
                 else:
                     os.remove(file)
                     return True, "New"
-            else:
-                return False, "No"
+    return False, "No"
 
 
 async def get_html(url: str, params: Optional[dict] = None) -> Tuple[str, int]:
@@ -53,7 +56,7 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
     schedules = [
         [
             schedule.get("href").split("/")[-1].split()[0].split()[0].split("."),
-            schedule.get("href"),
+            schedule.get("href")
         ]
         for schedule in schedules
     ]
@@ -72,7 +75,9 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
     return filename, link
 
 
-async def get_file(filename_and_link: Tuple[str, str]) -> Tuple[bool, str, str]:
+async def get_file(
+    filename_and_link: Tuple[str, str]
+) -> Tuple[bool, str, str]:
     """Сохранение файла с расписанием."""
     filename, link = (i for i in filename_and_link)
     bool_meaning, status = await check_for_innovation(filename)

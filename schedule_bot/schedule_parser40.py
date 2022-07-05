@@ -1,27 +1,31 @@
-"""Файл для парсинга расписания на сайте школы №40"""
+"""Файл для парсинга расписания на сайте школы №40."""
 
 import asyncio
-from typing import List, Tuple
-from bs4 import BeautifulSoup
-from vkbottle.bot import Bot
-import aiohttp
-import aiofiles
 import glob
 import os
+from typing import List, Tuple
+
+import aiofiles
+
+import aiohttp
+
+from bs4 import BeautifulSoup
+
+from convert_text_to_image import del_img, make_image, save_img
+
 from mailing import mailing_list
+
+from vkbottle.bot import Bot
+
 from xls_parser import get_classes_schedules
-from convert_text_to_image import make_image, del_img, save_img
 
 
 URL = "https://s11028.edu35.ru/2013-06-12-15-17-31/raspisanie"
-HEADERS = {
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.81 Safari/537.36",
-    "accept": "*/*",
-}
 PATH = "schedule_tables/school40/"
 
 
 async def check_for_innovation(filename: str) -> Tuple[bool, str]:
+    """Функция для проверки актуальности расписания."""
     xls_files = glob.glob(PATH + "*.xls")
     if xls_files == []:
         return True, "New"
@@ -37,6 +41,7 @@ async def check_for_innovation(filename: str) -> Tuple[bool, str]:
 
 
 async def get_html(url: str) -> Tuple[str, int]:
+    """Получение кода страницы."""
     connector = aiohttp.TCPConnector(force_close=True)
     async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(url) as response:
@@ -45,22 +50,28 @@ async def get_html(url: str) -> Tuple[str, int]:
 
 
 async def get_link_and_filename(html_code: str) -> List[Tuple[str, str]]:
+    """Получение ссылки на файл и названия файла из HTML-кода страницы."""
     links_and_filenames = []
     class_schedule = ["even", "odd"]
     soup = BeautifulSoup(html_code, "lxml")
     for class_ in class_schedule:
-        links_and_filenames.append(await get_schedule(soup.find_all("tr", class_=class_)))
+        links_and_filenames.append(
+            await get_schedule(soup.find_all("tr", class_=class_))
+        )
     return links_and_filenames
 
 
 async def get_schedule(list_schedules: List) -> Tuple[str, str]:
+    """Получение ссылки на актуальное расписание."""
     schedules = []
     for schedule in list_schedules:
         schedules.append(schedule.find("a", class_="at_icon").get("href"))
     max_date = sorted(
         schedules, key=lambda x: int(x.split("/")[-1].split()[0]), reverse=True
     )[0]
-    min_date = sorted(schedules, key=lambda x: int(x.split("/")[-1].split()[0]))[0]
+    min_date = sorted(
+        schedules, key=lambda x: int(x.split("/")[-1].split()[0])
+    )[0]
     if min_date.split("/")[-1].split()[1] == "1" and (
         max_date.split("/")[-1].split()[1] == "30"
         or max_date.split("/")[-1].split()[1] == "31"
@@ -72,6 +83,7 @@ async def get_schedule(list_schedules: List) -> Tuple[str, str]:
 
 
 async def get_date(filename: str) -> str:
+    """Получение номера месяца по названию."""
     month = {
         "января": "01",
         "февраля": "02",
@@ -90,14 +102,18 @@ async def get_date(filename: str) -> str:
 
 
 async def get_files(schedules: Tuple) -> Tuple[bool, str, str]:
+    """Сохранение файлов с расписанием."""
     for schedule in schedules:
         filename, link = schedule
-        bool_meaning, status = await check_for_innovation(filename.split("/")[-1])
+        bool_meaning, status = await check_for_innovation(
+                                    filename.split("/")[-1]
+                                )
         if bool_meaning:
             connector = aiohttp.TCPConnector(force_close=True)
             async with aiohttp.ClientSession(connector=connector) as session:
                 async with session.get(link) as response:
-                    async with aiofiles.open(PATH + filename, "wb") as schedule:
+                    async with aiofiles.open(PATH + filename, "wb") \
+                     as schedule:
                         await schedule.write(await response.content.read())
             date = await get_date(filename.lower().split()[:2])
         else:
@@ -106,6 +122,7 @@ async def get_files(schedules: Tuple) -> Tuple[bool, str, str]:
 
 
 async def parse40(bot: Bot) -> None:
+    """Проверка ответа сервера, рендер изображений и рассылка."""
     while True:
         if glob.glob(PATH + "*.xls") == []:
             await asyncio.sleep(1)

@@ -1,11 +1,12 @@
 """Файл для создания изображений с расписанием."""
 
 import datetime
-from typing import List, Tuple
-from PIL import Image, ImageDraw, ImageFont
-from dataclasses import dataclass
-import os
 import glob
+import os
+from dataclasses import dataclass
+from typing import List, Tuple
+
+from PIL import Image, ImageDraw, ImageFont
 
 
 PATH = "schedule_image/"
@@ -13,6 +14,8 @@ PATH = "schedule_image/"
 
 @dataclass
 class Schedule:
+    """Класс для структуризация данных о каждом классе."""
+
     class_name: str
     schedule: list
     bells: list
@@ -25,7 +28,9 @@ def del_img(school: str) -> None:
         os.remove(img)
 
 
-def make_image(schedules: List[Schedule], date: List[str]) -> List[Tuple[Image.Image, str]]:
+def make_image(
+    schedules: List[Schedule], date: List[str]
+) -> List[Tuple[Image.Image, str]]:
     """Фунция для создания изображения с расписанием."""
     images_and_classes = []
     day, month = map(int, date[0].split(".")[:2])
@@ -71,11 +76,11 @@ def make_image(schedules: List[Schedule], date: List[str]) -> List[Tuple[Image.I
             hight_for_one_block = 143
         for i in range(len(list_schedule)):
             block_with_lesson_and_bell = Image.new(
-                mode="RGB", 
-                size=(1442, hight_for_one_block), 
-                color="white"
+                mode="RGB", size=(1442, hight_for_one_block), color="white"
             )
-            insert_in_block_with_lesson_and_bell = ImageDraw.Draw(block_with_lesson_and_bell)
+            insert_in_block_with_lesson_and_bell = ImageDraw.Draw(
+                block_with_lesson_and_bell
+            )
             if list_schedule[i] in ("нет урока", "нет урока ", ""):
                 fill = "grey"
             else:
@@ -98,7 +103,10 @@ def make_image(schedules: List[Schedule], date: List[str]) -> List[Tuple[Image.I
     return images_and_classes
 
 
-def save_img(images_and_classes: List[Tuple[Image.Image, str]], school: str) -> None:
+def save_img(
+    images_and_classes: List[Tuple[Image.Image, str]], school: str
+) -> None:
+    """Функция для сохранения изображений с расписанием."""
     for element in images_and_classes:
         img, class_name = element
         filename = f"{class_name}.jpg"
@@ -106,11 +114,20 @@ def save_img(images_and_classes: List[Tuple[Image.Image, str]], school: str) -> 
             os.path.split(path)[-1]
             for path in glob.glob(PATH + "school" + school + "/*.jpg")
         ]
-        
         if filename in schedules:
-            img.save(os.path.join(PATH + "school" + school + "/", class_name + "2.jpg"))
+            img.save(
+                os.path.join(
+                    PATH + "school" + school + "/",
+                    class_name + "2.jpg"
+                )
+            )
         else:
-            img.save(os.path.join(PATH + "school" + school + "/", class_name + ".jpg"))
+            img.save(
+                os.path.join(
+                    PATH + "school" + school + "/",
+                    class_name + ".jpg"
+                )
+            )
 
 
 def get_date(date: datetime.date) -> str:
@@ -119,14 +136,16 @@ def get_date(date: datetime.date) -> str:
 
 
 def get_next_date(date: datetime.date) -> str:
-    """Функция для получения даты расписания + 1 день."""
+    """Функция для получения даты расписания + 1 день.
 
-    """В основном используется для получения даты расписания на субботу."""
+    В основном используется для получения даты расписания на субботу.
+    """
     next_day = date + datetime.timedelta(days=1)
     return f"{next_day.strftime('%d.%m.%Y')} - {get_week_day(next_day)}"
 
 
 def get_week_day(date: datetime.date) -> str:
+    """Функция для перевода дней недели с анлийского на русский."""
     days_of_week = {
         "Sunday": "воскресенье",
         "Monday": "понедельник",

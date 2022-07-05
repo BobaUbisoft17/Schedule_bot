@@ -1,4 +1,7 @@
+"""Модуль для рассылки уведомлений."""
+
 from db_users import get_users_id, unsubscribe_on_newsletter
+
 from vkbottle import CodeException
 from vkbottle.bot import Bot
 
@@ -10,6 +13,7 @@ status_messages = {
 
 
 async def mailing_list(bot: Bot, status: str, school: str) -> None:
+    """Функция для оповещение пользователей о новом/обновлённом расписании."""
     message = status_messages[status]
     for user_id in await get_users_id(school):
         try:
