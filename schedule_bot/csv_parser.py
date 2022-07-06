@@ -21,10 +21,8 @@ async def get_classes_schedules(school: str) -> List[ClassSchedule]:
     """Получение расписаний всех классов из .csv файлов."""
     classes_schedules = []
     for file in await _get_csv_files(school):
-        for table in await _fetch_classes_schedules_from_csv(file):
-            classes_schedules.append(
-                ClassSchedule(class_name=table[0], schedule=table[1], bells=table[-1])
-            )
+        schedules = await _fetch_classes_schedules_from_csv(file)
+        classes_schedules.extend(schedules)
         os.remove(file)
     return classes_schedules
 
@@ -35,7 +33,7 @@ async def _get_csv_files(school: str) -> List[str]:
     return sorted(csv_files)
 
 
-async def _fetch_classes_schedules_from_csv(filepath: str) -> List[Tuple[str, str]]:
+async def _fetch_classes_schedules_from_csv(filepath: str) -> List[ClassSchedule]:
     """Получение расписаний классов из .csv файла."""
     with open(filepath, encoding="utf-8") as f:
         schedule = list(csv.reader(f, delimiter=";"))
@@ -130,6 +128,8 @@ async def _join_classes_schedule_with_bells(
     """Объединение классов, звонков и расписания."""
     classes_schedules_with_bells = []
     for i in range(len(classes_schedules)):
-        classes_schedules_with_bells.append([classes_schedules[i], schedules[i], bells])
+        classes_schedules_with_bells.append(
+            ClassSchedule(classes_schedules[i], schedules[i], bells)
+        )
 
     return classes_schedules_with_bells
