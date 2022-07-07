@@ -17,7 +17,7 @@ from db_users import (
 )
 from file_service import get_schedule_class
 from keyboard import (
-    all_classes_names,
+    all_classnames,
     back1,
     back2,
     back3,
@@ -172,7 +172,7 @@ async def choice_parallel(message: Message) -> None:
         message.peer_id, message.payload.split(":")[1][1:3]
     ):
         school, class_ = await get_school_and_class(message.peer_id)
-        file_path = await get_schedule_class(school, class_)
+        file_path = get_schedule_class(school, class_)
         photo = [
             await PhotoMessageUploader(bot.api).upload(file)
             for file in sorted(file_path)
@@ -289,18 +289,18 @@ async def back2(message: Message) -> None:
     )
 
 
-@bot.on.private_message(text=all_classes_names, payload=school_payloads)
+@bot.on.private_message(text=all_classnames, payload=school_payloads)
 async def get_schedule(message: Message) -> None:
     """Функция для отправки фотографий с расписанием.
 
     Функция фильтрует сообщения и отвечает только на те,
-    в которых указан класс из списка CLASSES_NAMES,
+    в которых указан класс из списка all_classnames,
     возвращает изображение или
     изображения(взависимости от класса и дня недели) + текст.
     """
     payload = message.payload
     school = payload.split(":")[1][1:3]
-    file_path = await get_schedule_class(school, message.text)
+    file_path = get_schedule_class(school, message.text)
     photo = [
         await PhotoMessageUploader(bot.api).upload(file)
         for file in sorted(file_path)

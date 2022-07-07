@@ -10,7 +10,7 @@ dict_of_schoolpath = {
 }
 
 
-async def get_schedule_class(school: str, classname: str) -> List[str]:
+def get_schedule_class(school: str, classname: str) -> List[str]:
     """Функция для поиска изображений расписания для отдельного класса."""
     return [
         file
