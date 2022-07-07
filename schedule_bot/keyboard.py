@@ -50,7 +50,7 @@ classes = {
 }
 
 
-all_classes_names = [
+all_classnames = [
     f"{number}{letter}"
     for school in all_schools
     for (number, letters) in classes[school].items()
