@@ -63,7 +63,7 @@ def get_class_and_amount_cols(
         count_cols = 1
         index = row_classes.index(class_)
         while (len(row_classes) - 1 >= index + 1) and (
-         row_classes[index + 1] == ""
+            row_classes[index + 1] == ""
         ):
             count_cols += 1
             index += 1

@@ -15,9 +15,7 @@ from db_users import (
     subscribe_on_newsletter,
     unsubscribe_on_newsletter,
 )
-
 from file_service import get_schedule_class
-
 from keyboard import (
     all_classes_names,
     back1,
@@ -37,9 +35,7 @@ from keyboard import (
     sub_keyboard,
     unsub_keyboard,
 )
-
 from schedule_parser14 import parse14
-
 from schedule_parser40 import parse40
 
 from vkbottle import BaseStateGroup, PhotoMessageUploader

@@ -12,11 +12,8 @@ import aiohttp
 from bs4 import BeautifulSoup
 
 from convert_text_to_image import del_img, make_image, save_img
-
 from mailing import mailing_list
-
 from vkbottle.bot import Bot
-
 from xls_parser import get_classes_schedules
 
 
