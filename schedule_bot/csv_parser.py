@@ -12,38 +12,38 @@ from convert_text_to_image import Schedule
 PATH = "schedule_tables/school"
 
 
-async def get_classes_schedules(school: str) -> List[Schedule]:
+def get_classes_schedules(school: str) -> List[Schedule]:
     """Получение расписаний всех классов из .csv файлов."""
     classes_schedules = []
-    for file in await _get_csv_files(school):
-        schedules = await _fetch_classes_schedules_from_csv(file)
+    for file in _get_csv_files(school):
+        schedules = _fetch_classes_schedules_from_csv(file)
         classes_schedules.extend(schedules)
         os.remove(file)
     return classes_schedules
 
 
-async def _get_csv_files(school: str) -> List[str]:
+def _get_csv_files(school: str) -> List[str]:
     """Полученеия .csv файлов в текущей директории."""
     csv_files = glob.glob(PATH + school + "/*.csv")
     return sorted(csv_files)
 
 
-async def _fetch_classes_schedules_from_csv(filepath: str) -> List[Schedule]:
+def _fetch_classes_schedules_from_csv(filepath: str) -> List[Schedule]:
     """Получение расписаний классов из .csv файла."""
     with open(filepath, encoding="utf-8") as f:
         schedule = list(csv.reader(f, delimiter=";"))
 
     classes_names_row, *schedule = schedule
-    classes_names = await _fetch_classes_names(classes_names_row)
-    schedule_bells, schedule = await _get_schedule_bells(schedule)
-    classes_schedules = await _split_schedule_by_classes(len(classes_names), schedule)
+    classes_names = _fetch_classes_names(classes_names_row)
+    schedule_bells, schedule = _get_schedule_bells(schedule)
+    classes_schedules = _split_schedule_by_classes(len(classes_names), schedule)
 
-    return await _join_classes_schedule_with_bells(
+    return _join_classes_schedule_with_bells(
         classes_names, schedule_bells, classes_schedules
     )
 
 
-async def _fetch_classes_names(classes_names_row: list) -> List[str]:
+def _fetch_classes_names(classes_names_row: list) -> List[str]:
     """Извлечение названий классов."""
     classes_names = []
     for cell in classes_names_row[1:]:
@@ -52,7 +52,7 @@ async def _fetch_classes_names(classes_names_row: list) -> List[str]:
     return classes_names
 
 
-async def _get_schedule_bells(schedule: list) -> Tuple[List, List]:
+def _get_schedule_bells(schedule: list) -> Tuple[List, List]:
     """Получение расписания перемен."""
     schedule_bells = []
     for i in range(len(schedule)):
@@ -87,7 +87,7 @@ async def _get_schedule_bells(schedule: list) -> Tuple[List, List]:
     return schedule_bells, schedule
 
 
-async def _split_schedule_by_classes(classes_count: int, schedules: list):
+def _split_schedule_by_classes(classes_count: int, schedules: list):
     """Распределение расписания по классам."""
     classes_schedules = []
     for i in range(classes_count):
@@ -117,7 +117,7 @@ async def _split_schedule_by_classes(classes_count: int, schedules: list):
     return classes_schedules
 
 
-async def _join_classes_schedule_with_bells(
+def _join_classes_schedule_with_bells(
     classes_schedules: list, bells: list, schedules: list
 ) -> List[Schedule]:
     """Объединение классов, звонков и расписания."""
