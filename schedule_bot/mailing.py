@@ -1,9 +1,10 @@
 """Модуль для рассылки уведомлений."""
 
-from db_users import get_users_id, unsubscribe_on_newsletter
-
 from vkbottle import CodeException
 from vkbottle.bot import Bot
+
+from db_users import get_users_id, unsubscribe_on_newsletter
+
 
 
 status_messages = {

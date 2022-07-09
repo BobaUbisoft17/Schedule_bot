@@ -6,16 +6,14 @@ import os
 from typing import Optional, Tuple
 
 import aiofiles
-
 import aiohttp
-
 from bs4 import BeautifulSoup
+from vkbottle.bot import Bot
 
 from convert_text_to_image import del_img, make_image, save_img
 from mailing import mailing_list
 from pdf_parser import get_classes_schedules
 
-from vkbottle.bot import Bot
 
 URL = "https://s11018.edu35.ru/obuchayushchimsya/raspisanie-urokov"
 PATH = "schedule_tables/school14/"
