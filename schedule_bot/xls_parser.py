@@ -124,7 +124,7 @@ def get_schedule_bells(sheet: xlrd.sheet.Sheet) -> List[str]:
 
 
 def group_schedule_classname_bells(
-    classnames: List[str], schedules: List[str], bells: List[str]
+    classnames: List[str], schedules: List[List[str]], bells: List[str]
 ) -> List[Schedule]:
     """Функция для объединения звонков, классов и уроков."""
     group_schedule = []

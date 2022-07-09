@@ -64,7 +64,7 @@ def _get_pdf_files() -> List[str]:
     return glob.glob("schedule_tables/school14/*.pdf")
 
 
-def _get_schedule_bells(schedule: List) -> Tuple[List[str], List[List[str]]]:
+def _get_schedule_bells(schedule: List[List[str]]) -> Tuple[List[str], List[List[str]]]:
     """Получение расписания перемен."""
     schedule_bells = []
     timetable = []
@@ -96,7 +96,7 @@ def _get_schedule_bells(schedule: List) -> Tuple[List[str], List[List[str]]]:
 
 
 def _split_schedule_by_classes(
-    classes_count: int, schedules: list
+    classes_count: int, schedules: List[List[str]]
 ) -> List[List[str]]:
     """Распределение расписания по классам."""
     classes_schedules = []
@@ -146,7 +146,7 @@ def _split_schedule_by_classes(
 
 
 def _join_classes_schedule_with_bells(
-    classnames: list, bells: list, schedules: list
+    classnames: List[str], bells: List[str], schedules: List[List[str]]
 ) -> List[Schedule]:
     """Объединение классов, звонков и расписания."""
     schedule = []

@@ -43,7 +43,7 @@ def _fetch_classes_schedules_from_csv(filepath: str) -> List[Schedule]:
     )
 
 
-def _fetch_classes_names(classes_names_row: list) -> List[str]:
+def _fetch_classes_names(classes_names_row: List[str]) -> List[str]:
     """Извлечение названий классов."""
     classes_names = []
     for cell in classes_names_row[1:]:
@@ -52,7 +52,7 @@ def _fetch_classes_names(classes_names_row: list) -> List[str]:
     return classes_names
 
 
-def _get_schedule_bells(schedule: list) -> Tuple[List, List]:
+def _get_schedule_bells(schedule: List[List[str]]) -> Tuple[List[str], List[List[str]]]:
     """Получение расписания перемен."""
     schedule_bells = []
     for i in range(len(schedule)):
@@ -87,7 +87,7 @@ def _get_schedule_bells(schedule: list) -> Tuple[List, List]:
     return schedule_bells, schedule
 
 
-def _split_schedule_by_classes(classes_count: int, schedules: list):
+def _split_schedule_by_classes(classes_count: int, schedules: List[List[str]]) -> List[List[str]]:
     """Распределение расписания по классам."""
     classes_schedules = []
     for i in range(classes_count):

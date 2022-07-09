@@ -36,7 +36,7 @@ async def check_for_innovation(filename: str) -> Tuple[bool, str]:
     return False, "No"
 
 
-async def get_html(url: str, params: Optional[dict] = None) -> Tuple[str, int]:
+async def get_html(url: str) -> Tuple[str, int]:
     """Получение кода страницы."""
     connector = aiohttp.TCPConnector(force_close=True)
     async with aiohttp.ClientSession(connector=connector) as session:

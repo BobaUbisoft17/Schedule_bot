@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 import aiofiles
 import aiohttp
-from bs4 import BeautifulSoup
+import bs4
 from vkbottle.bot import Bot
 
 from convert_text_to_image import del_img, make_image, save_img
@@ -48,7 +48,7 @@ async def get_link_and_filename(html_code: str) -> List[Tuple[str, str]]:
     """Получение ссылки на файл и названия файла из HTML-кода страницы."""
     links_and_filenames = []
     class_schedule = ["even", "odd"]
-    soup = BeautifulSoup(html_code, "lxml")
+    soup = bs4.BeautifulSoup(html_code, "lxml")
     for class_ in class_schedule:
         links_and_filenames.append(
             await get_schedule(soup.find_all("tr", class_=class_))
@@ -56,7 +56,7 @@ async def get_link_and_filename(html_code: str) -> List[Tuple[str, str]]:
     return links_and_filenames
 
 
-async def get_schedule(list_schedules: List) -> Tuple[str, str]:
+async def get_schedule(list_schedules: bs4.element.ResultSet) -> Tuple[str, str]:
     """Получение ссылки на актуальное расписание."""
     schedules = []
     for schedule in list_schedules:
@@ -93,10 +93,10 @@ async def get_date(filename: str) -> str:
         "ноября": "11",
         "декабря": "12",
     }
-    return f"{filename[0]}.{month[filename[1]]} "
+    return f"{filename[0]}.{month[filename[1]]}"
 
 
-async def get_files(schedules: Tuple) -> Tuple[bool, str, str]:
+async def get_files(schedules: List[Tuple[str, str]]) -> Tuple[bool, str, str]:
     """Сохранение файлов с расписанием."""
     for schedule in schedules:
         filename, link = schedule
