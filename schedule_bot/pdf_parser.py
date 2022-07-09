@@ -12,19 +12,12 @@ def get_classes_schedules() -> List[Schedule]:
     """Получение расписаний всех классов из .pdf файлов."""
     classes_schedules = []
     for file in _get_pdf_files():
-        for table in _fetch_classes_schedules_from_pdf(file):
-            for class_ in table:
-                classes_schedules.append(
-                    Schedule(
-                        class_name=class_[0],
-                        schedule=class_[1],
-                        bells=class_[2]
-                    )
-                )
+        schedules = _fetch_classes_schedules_from_pdf(file)
+        classes_schedules.extend(schedules)
     return classes_schedules
 
 
-def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, str]]:
+def _fetch_classes_schedules_from_pdf(filename: str) -> List[Schedule]:
     """Получение расписаний классов из .pdf файла."""
     schedules = []
     with pdfplumber.open(filename) as pdf:
@@ -57,7 +50,7 @@ def _fetch_classes_schedules_from_pdf(filename: str) -> List[Tuple[str, str]]:
                                 len(classnames),
                                 schedule
                             )
-        schedules.append(
+        schedules.extend(
             _join_classes_schedule_with_bells(
                 classnames, schedule_bells, classes_schedules
             )
@@ -154,9 +147,9 @@ def _split_schedule_by_classes(
 
 def _join_classes_schedule_with_bells(
     classnames: list, bells: list, schedules: list
-) -> List[List[str]]:
+) -> List[Schedule]:
     """Объединение классов, звонков и расписания."""
     schedule = []
     for i in range(len(classnames)):
-        schedule.append([classnames[i], schedules[i], bells])
+        schedule.append(Schedule(classnames[i], schedules[i], bells))
     return schedule

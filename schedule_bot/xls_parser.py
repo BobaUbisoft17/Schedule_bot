@@ -20,18 +20,12 @@ def get_classes_schedules() -> List[Schedule]:
     """Функция для записи расписания в dataclass."""
     classes_schedules = []
     for file in get_files():
-        for table in read_file(file):
-            classes_schedules.append(
-                Schedule(
-                    class_name=table[0],
-                    schedule=table[1],
-                    bells=table[2]
-                )
-            )
+        schedules = read_file(file)
+        classes_schedules.extend(schedules)
     return classes_schedules
 
 
-def read_file(file: str) -> List[Tuple[str, List[str], List[str]]]:
+def read_file(file: str) -> List[Schedule]:
     """Функция для считывания файла и сортировки данных."""
     book = xlrd.open_workbook(file)
     sheet = book.sheet_by_index(0)
@@ -131,9 +125,9 @@ def get_schedule_bells(sheet: xlrd.sheet.Sheet) -> List[str]:
 
 def group_schedule_classname_bells(
     classnames: List[str], schedules: List[str], bells: List[str]
-) -> List[Tuple[str, List[str], List[str]]]:
+) -> List[Schedule]:
     """Функция для объединения звонков, классов и уроков."""
     group_schedule = []
     for i in range(len(classnames)):
-        group_schedule.append([classnames[i], schedules[i], bells])
+        group_schedule.append(Schedule(classnames[i], schedules[i], bells))
     return group_schedule
