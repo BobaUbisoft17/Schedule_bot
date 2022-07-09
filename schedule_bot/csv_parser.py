@@ -6,18 +6,13 @@ import os
 from dataclasses import dataclass
 from typing import List, Tuple
 
+from convert_text_to_image import Schedule
+
 
 PATH = "schedule_tables/school"
 
 
-@dataclass
-class ClassSchedule:
-    class_name: str
-    schedule: list
-    bells: list
-
-
-async def get_classes_schedules(school: str) -> List[ClassSchedule]:
+async def get_classes_schedules(school: str) -> List[Schedule]:
     """Получение расписаний всех классов из .csv файлов."""
     classes_schedules = []
     for file in await _get_csv_files(school):
@@ -33,7 +28,7 @@ async def _get_csv_files(school: str) -> List[str]:
     return sorted(csv_files)
 
 
-async def _fetch_classes_schedules_from_csv(filepath: str) -> List[ClassSchedule]:
+async def _fetch_classes_schedules_from_csv(filepath: str) -> List[Schedule]:
     """Получение расписаний классов из .csv файла."""
     with open(filepath, encoding="utf-8") as f:
         schedule = list(csv.reader(f, delimiter=";"))
@@ -124,12 +119,12 @@ async def _split_schedule_by_classes(classes_count: int, schedules: list):
 
 async def _join_classes_schedule_with_bells(
     classes_schedules: list, bells: list, schedules: list
-):
+) -> List[Schedule]:
     """Объединение классов, звонков и расписания."""
     classes_schedules_with_bells = []
     for i in range(len(classes_schedules)):
         classes_schedules_with_bells.append(
-            ClassSchedule(classes_schedules[i], schedules[i], bells)
+            Schedule(classes_schedules[i], schedules[i], bells)
         )
 
     return classes_schedules_with_bells
