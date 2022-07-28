@@ -128,10 +128,10 @@ async def check_school_and_class(user_id: int, pld_school: str) -> bool:
                 return False
             else:
                 await cursor.execute(
-                "SELECT * FROM users_db WHERE id=?",
-                [user_id]
+                    "SELECT school, class FROM users_db WHERE id=?",
+                    [user_id]
                 )
-                school, class_ = (await cursor.fetchone())[1:3]
+                school, class_ = await cursor.fetchone()
                 if class_ != "" and pld_school == school:
                     return True
                 else:
@@ -168,11 +168,10 @@ async def get_school_and_class(user_id: int) -> Tuple[str, str]:
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
             await cursor.execute(
-                "SELECT * FROM users_db WHERE id=?",
+                "SELECT school, class FROM users_db WHERE id=?",
                 [user_id]
             )
-            school, class_ = (await cursor.fetchone())[1:3]
-            return school, class_
+            return await cursor.fetchone()
 
 
 async def check_user_subscription(user_id: int) -> bool:
