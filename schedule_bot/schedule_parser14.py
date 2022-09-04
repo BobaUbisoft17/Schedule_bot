@@ -27,7 +27,7 @@ async def check_for_innovation(filename: str) -> Tuple[bool, str]:
     else:
         for file in csv_files:
             if os.path.split(file)[-1] != filename:
-                if (os.path.split(file)[-1]).split()[0] in filename:
+                if (os.path.split(file)[-1]).split()[1] in filename:
                     os.remove(file)
                     return True, "Update"
                 else:
@@ -51,7 +51,7 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
     schedules = soup.find_all("a", class_="at_url")
     schedules = [
         [
-            schedule.get("href").split("/")[-1].split()[0].split()[0].split("."),
+            schedule.get("href").split("/")[-1].split()[1].split()[0].split("."),
             schedule.get("href")
         ]
         for schedule in schedules
@@ -104,5 +104,7 @@ async def parse14(bot: Bot) -> None:
             if bool_meaning:
                 schedules = get_classes_schedules()
                 del_img("14")
-                save_img(make_image(schedules, filename.split()), "14")
+                schedule_name = filename.split()
+                schedule_name[0], schedule_name[1] = schedule_name[1], schedule_name[0]
+                save_img(make_image(schedules, schedule_name), "14")
                 await mailing_list(bot, status, "14")
