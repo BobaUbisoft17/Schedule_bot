@@ -44,7 +44,6 @@ def _fetch_classes_schedules_from_pdf(filename: str) -> List[Schedule]:
                         lessons.append(lesson)
                 list_tables.append(lessons)
     for table in list_tables:
-        print(table)
         classnames, *schedule = table
         schedule_bells, schedule = _get_schedule_bells(schedule)
         classes_schedules = _split_schedule_by_classes(
@@ -70,8 +69,12 @@ def _get_schedule_bells(schedule: List[List[str]]) -> Tuple[List[str], List[List
     schedule_bells = []
     timetable = []
     for lesson in schedule:
-        schedule_bells.append(lesson[1])
-        timetable.append(lesson[2:])
+        if len(lesson[0]) > 1:
+            schedule_bells.append(lesson[0])
+            timetable.append(lesson[1:])
+        else:
+            schedule_bells.append(lesson[1])
+            timetable.append(lesson[2:])
     for i in range(len(schedule_bells)):
         true_bell = []
         if "\n" not in schedule_bells[i]:

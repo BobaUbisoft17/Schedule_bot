@@ -3,6 +3,8 @@
 import asyncio
 import glob
 import os
+import sched
+from tkinter.ttk import Style
 from typing import Optional, Tuple
 
 import aiofiles
@@ -15,7 +17,7 @@ from mailing import mailing_list
 from pdf_parser import get_classes_schedules
 
 
-URL = "https://s11018.edu35.ru/obuchayushchimsya/raspisanie-urokov"
+URL = "https://s11018.edu35.ru/"
 PATH = "schedule_tables/school14/"
 
 
@@ -48,24 +50,45 @@ async def get_html(url: str) -> Tuple[str, int]:
 async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
     """Получение ссылки на файл и названия файла из HTML-кода страницы."""
     soup = BeautifulSoup(html_code, "lxml")
-    schedules = soup.find_all("a", class_="at_url")
-    schedules = [
-        [
-            schedule.get("href").split("/")[-1].split()[1].split()[0].split("."),
-            schedule.get("href")
-        ]
-        for schedule in schedules
-    ]
+    html_schedules = soup.find_all("span", style="font-family: 'book antiqua', palatino; font-size: 14pt;")
+    if soup.find_all("a", class_="at_url") == []:
+        schedules = []
+        for schedule in html_schedules:
+            schedules.extend(schedule.find_all("a"))
+    else:
+        schedules = soup.find_all("a", class_="at_url")
+    link_and_schedule = []
+    for schedule in schedules:
+        if " " not in schedule.get("href").split("/")[-1]:
+            if "doc" in schedule.get("href"):
+                link_and_schedule.append([
+                    schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
+                    URL + schedule.get("href")
+                ])
+            else:
+                link_and_schedule.append(
+                    [
+                        schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
+                        schedule.get("href")
+                    ]
+                )
+        else:
+            link_and_schedule.append(
+                [
+                    schedule.get("href").split("/")[-1].split()[1].split()[0].split("."),
+                    schedule.get("href")
+                ]
+            )
     max_date = [["0", "0"], ""]
-    for i in range(len(schedules)):
+    for i in range(len(link_and_schedule)):
         if (
-            int(schedules[i][0][0]) > int(max_date[0][0])
-            and int(schedules[i][0][1]) >= int(max_date[0][1])
+            int(link_and_schedule[i][0][0]) > int(max_date[0][0])
+            and int(link_and_schedule[i][0][1]) >= int(max_date[0][1])
         ) or (
-            int(schedules[i][0][0]) < int(max_date[0][0])
-            and int(schedules[i][0][1]) > int(max_date[0][1])
+            int(link_and_schedule[i][0][0]) < int(max_date[0][0])
+            and int(link_and_schedule[i][0][1]) > int(max_date[0][1])
         ):
-            max_date = schedules[i]
+            max_date = link_and_schedule[i]
     filename = max_date[1].split("/")[-1]
     link = max_date[1]
     return filename, link
@@ -96,7 +119,7 @@ async def parse14(bot: Bot) -> None:
             await asyncio.sleep(1)
         else:
             await asyncio.sleep(1800)
-        html, status = await get_html(URL)
+        html, status = await get_html(URL + "obuchayushchimsya/raspisanie-urokov/")
         if status == 200:
             bool_meaning, filename, status = await get_file(
                 await get_link_and_filename(html)
@@ -104,7 +127,11 @@ async def parse14(bot: Bot) -> None:
             if bool_meaning:
                 schedules = get_classes_schedules()
                 del_img("14")
-                schedule_name = filename.split()
-                schedule_name[0], schedule_name[1] = schedule_name[1], schedule_name[0]
+                if "_" not in filename:
+                    schedule_name = filename.split()
+                    schedule_name[0], schedule_name[1] = schedule_name[1], schedule_name[0]
+                else:
+                    schedule_name = filename.split("_")
+                    schedule_name[0], schedule_name[1] = schedule_name[1], schedule_name[0]
                 save_img(make_image(schedules, schedule_name), "14")
                 await mailing_list(bot, status, "14")
