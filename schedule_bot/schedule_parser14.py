@@ -59,23 +59,17 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
         schedules = soup.find_all("a", class_="at_url")
     link_and_schedule = []
     for schedule in schedules:
-        if " " not in schedule.get("href").split("/")[-1]:
-            if "doc" in schedule.get("href"):
-                link_and_schedule.append([
+        if "doc" in schedule.get("href"):
+            link_and_schedule.append(
+                [
                     schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
                     URL + schedule.get("href")
-                ])
-            else:
-                link_and_schedule.append(
-                    [
-                        schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
-                        schedule.get("href")
-                    ]
-                )
+                ]
+            )
         else:
             link_and_schedule.append(
                 [
-                    schedule.get("href").split("/")[-1].split()[1].split()[0].split("."),
+                    schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
                     schedule.get("href")
                 ]
             )
