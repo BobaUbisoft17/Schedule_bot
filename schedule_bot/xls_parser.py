@@ -42,9 +42,7 @@ def read_file(file: str) -> List[Schedule]:
 
 def get_classnames(row_classnames: List[str]) -> List[str]:
     """Функция для получения названий классов."""
-    classnames = [class_.upper() for class_ in set(row_classnames)]
-    classnames.remove("")
-    return sorted(classnames, key=lambda x: (int(x[:-1]), x[-1]))
+    return [class_.upper() for class_ in row_classnames if class_ != ""] 
 
 
 def get_class_and_amount_cols(

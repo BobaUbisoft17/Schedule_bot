@@ -3,9 +3,7 @@
 import asyncio
 import glob
 import os
-import sched
-from tkinter.ttk import Style
-from typing import Optional, Tuple
+from typing import Tuple
 
 import aiofiles
 import aiohttp
