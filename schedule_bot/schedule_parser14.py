@@ -58,19 +58,35 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
     link_and_schedule = []
     for schedule in schedules:
         if "doc" in schedule.get("href"):
-            link_and_schedule.append(
-                [
-                    schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
-                    URL + schedule.get("href")
-                ]
-            )
+            if "_" in schedule.get("href").split("/")[-1]:
+                link_and_schedule.append(
+                    [
+                        schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
+                        URL + schedule.get("href")
+                    ]
+                )
+            else:
+                link_and_schedule.append(
+                    [
+                        schedule.get("href").split("/")[-1].split()[1].split("."),
+                        URL + schedule.get("href")
+                    ]
+                )
         else:
-            link_and_schedule.append(
-                [
-                    schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
-                    schedule.get("href")
-                ]
-            )
+            if "_" in schedule.get("href").split("/")[-1]:
+                link_and_schedule.append(
+                    [
+                        schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
+                        schedule.get("href")
+                    ]
+                )
+            else:
+                link_and_schedule.append(
+                    [
+                        schedule.get("href").split("/")[-1].split()[1].split("."),
+                        schedule.get("href")
+                    ]
+                )
     max_date = [["0", "0"], ""]
     for i in range(len(link_and_schedule)):
         if (
