@@ -13,6 +13,7 @@ from vkbottle.bot import Bot
 from convert_text_to_image import del_img, make_image, save_img
 from mailing import mailing_list
 from pdf_parser import get_classes_schedules
+from utils import get_date
 
 
 URL = "https://s11018.edu35.ru/"
@@ -57,34 +58,22 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
         schedules = soup.find_all("a", class_="at_url")
     link_and_schedule = []
     for schedule in schedules:
-        if "doc" in schedule.get("href"):
-            if "_" in schedule.get("href").split("/")[-1]:
+        link = schedule.get("href")
+        if "doc" in link:
+            link = URL + link
+        if "Расписан" in link or "расписан" in link:
+            if "_" in link.split("/")[-1]:
                 link_and_schedule.append(
                     [
-                        schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
-                        URL + schedule.get("href")
+                        get_date(link.split("/")[-1].split("_")[1].split()).split("."),
+                        link
                     ]
                 )
             else:
                 link_and_schedule.append(
                     [
-                        schedule.get("href").split("/")[-1].split()[1].split("."),
-                        URL + schedule.get("href")
-                    ]
-                )
-        else:
-            if "_" in schedule.get("href").split("/")[-1]:
-                link_and_schedule.append(
-                    [
-                        schedule.get("href").split("/")[-1].split("_")[1].split()[0].split("."),
-                        schedule.get("href")
-                    ]
-                )
-            else:
-                link_and_schedule.append(
-                    [
-                        schedule.get("href").split("/")[-1].split()[1].split("."),
-                        schedule.get("href")
+                        get_date(link.split("/")[-1].split()).split("."),
+                        link
                     ]
                 )
     max_date = [["0", "0"], ""]
