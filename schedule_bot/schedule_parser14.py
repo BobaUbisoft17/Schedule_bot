@@ -22,11 +22,11 @@ PATH = "schedule_tables/school14/"
 
 async def check_for_innovation(filename: str) -> Tuple[bool, str]:
     """Функция для проверки актуальности расписания."""
-    csv_files = glob.glob(PATH + "*.pdf")
-    if csv_files == []:
+    pdf_files = glob.glob(PATH + "*.pdf")
+    if pdf_files == []:
         return True, "New"
     else:
-        for file in csv_files:
+        for file in pdf_files:
             if os.path.split(file)[-1] != filename:
                 if (os.path.split(file)[-1]).split()[1] in filename:
                     os.remove(file)
@@ -111,8 +111,8 @@ async def get_file(
 async def parse14(bot: Bot) -> None:
     """Проверка ответа сервера и запись данных в бд."""
     while True:
-        csv_files = glob.glob(PATH + "*.pdf")
-        if csv_files == []:
+        pdf_files = glob.glob(PATH + "*.pdf")
+        if pdf_files == []:
             await asyncio.sleep(1)
         else:
             await asyncio.sleep(1800)
