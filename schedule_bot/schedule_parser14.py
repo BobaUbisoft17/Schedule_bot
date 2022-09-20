@@ -125,9 +125,8 @@ async def parse14(bot: Bot) -> None:
                 schedules = get_classes_schedules()
                 del_img("14")
                 if "_" not in filename:
-                    schedule_name = filename.split()
+                    schedule_name = get_date(filename.split())
                 else:
-                    schedule_name = filename.split("_")
-                schedule_name[0], schedule_name[1] = schedule_name[1], schedule_name[0]
-                save_img(make_image(schedules, schedule_name), "14")
+                    schedule_name = get_date(filename.split("_")[1].split())
+                save_img(make_image(schedules, schedule_name.split()), "14")
                 await mailing_list(bot, status, "14")
