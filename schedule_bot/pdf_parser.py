@@ -106,9 +106,9 @@ def _split_schedule_by_classes(
         message_index = 0
         count_pass = 0
         for schedule in schedules:
-            if ("классный час" in schedule or "Классный час" in schedule) and \
-                len(schedule) == 1:
-                schedule *= len(classes_count)
+            if (("классный час" in schedule or "Классный час" in schedule) and \
+                len(schedule) == 1) or len(schedule) == 1:
+                schedule *= classes_count
             if len(schedule) < classes_count and len(schedule) != 1:
                 if big_message == "":
                     count = 0
