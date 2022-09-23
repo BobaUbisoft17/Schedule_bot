@@ -93,7 +93,10 @@ async def get_date(filename: str) -> str:
         "ноября": "11",
         "декабря": "12",
     }
-    return f"{filename[0]}.{month[filename[1]]}"
+    if "." not in filename[1]:
+        return f"{filename[0]}.{month[filename[1]]}"
+    else:
+        return f"{filename[0]}.{month[filename[1].split('.')[0]]}"
 
 
 async def get_files(schedules: List[Tuple[str, str]]) -> Tuple[bool, str, str]:
