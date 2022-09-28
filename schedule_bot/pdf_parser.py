@@ -109,7 +109,9 @@ def _split_schedule_by_classes(
             if (("классный час" in schedule or "Классный час" in schedule) and \
                 len(schedule) == 1) or len(schedule) == 1:
                 schedule *= classes_count
-            if len(schedule) < classes_count and len(schedule) != 1:
+            if schedule == []:
+                schedule = [""] * classes_count
+            elif len(schedule) < classes_count and len(schedule) != 1:
                 if big_message == "":
                     count = 0
                     for lesson in schedule:

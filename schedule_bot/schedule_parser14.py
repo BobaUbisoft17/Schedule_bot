@@ -62,20 +62,12 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
         if "doc" in link:
             link = URL + link
         if "Расписан" in link or "расписан" in link:
-            if "_" in link.split("/")[-1]:
-                link_and_schedule.append(
-                    [
-                        get_date(link.split("/")[-1].split("_")[1].split()).split("."),
-                        link
-                    ]
-                )
-            else:
-                link_and_schedule.append(
-                    [
-                        get_date(link.split("/")[-1].split()).split("."),
-                        link
-                    ]
-                )
+            link_and_schedule.append(
+                [
+                    get_date(link.split("/")[-1]).split("."),
+                    link
+                ]
+            )
     max_date = [["0", "0"], ""]
     for i in range(len(link_and_schedule)):
         if (
@@ -124,9 +116,6 @@ async def parse14(bot: Bot) -> None:
             if bool_meaning:
                 schedules = get_classes_schedules()
                 del_img("14")
-                if "_" not in filename:
-                    schedule_name = get_date(filename.split())
-                else:
-                    schedule_name = get_date(filename.split("_")[1].split())
+                schedule_name = get_date(filename)
                 save_img(make_image(schedules, schedule_name.split()), "14")
                 await mailing_list(bot, status, "14")

@@ -2,10 +2,15 @@ import datetime
 from typing import List
 
 
-def get_date(list_string: List[str]) -> str:
-    for string in list_string:
-        if is_date(string):
-            return string
+def get_date(string: str) -> str:
+    for elem in string.split():
+        if is_date(elem):
+            return elem
+
+    for elem in string.split("_"):
+        date = elem.split()[0]
+        if is_date(elem.split()[0]):
+            return date
 
 
 def is_date(string: str) -> bool:
