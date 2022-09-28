@@ -25,11 +25,12 @@ async def check_for_innovation(filename: str) -> Tuple[bool, str]:
     if xls_files == []:
         return True, "New"
     else:
-        if filename not in xls_files and len(xls_files) == 2:
+        xls_filenames = [os.path.split(file)[-1] for file in xls_files]
+        if filename not in xls_filenames and len(xls_filenames) == 2:
             for file in xls_files:
                 os.remove(file)
             return True, "New"
-        elif filename not in xls_files and len(xls_files) == 1:
+        elif filename not in xls_filenames and len(xls_filenames) == 1:
             return True, "New"
         else:
             return False, "No"
@@ -125,7 +126,7 @@ async def parse40(bot: Bot) -> None:
         if glob.glob(PATH + "*.xls") == []:
             await asyncio.sleep(1)
         else:
-            await asyncio.sleep(1800)
+            await asyncio.sleep(1)
         code, status_code = await get_html(URL)
         if status_code == 200:
             bool_meaning, date, status = await get_files(
