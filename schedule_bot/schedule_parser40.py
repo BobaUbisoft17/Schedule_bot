@@ -68,11 +68,8 @@ async def get_schedule(list_schedules: bs4.element.ResultSet) -> Tuple[str, str]
     min_date = sorted(
         schedules, key=lambda x: int(x.split("/")[-1].split()[0])
     )[0]
-    if min_date.split("/")[-1].split()[1] == "1" and (
-        max_date.split("/")[-1].split()[1] == "30"
-        or max_date.split("/")[-1].split()[1] == "31"
-        or max_date.split("/")[-1].split()[1] == "28"
-        or max_date.split("/")[-1].split()[1] == "27"
+    if int(min_date.split("/")[-1].split()[0]) in range(1, 6) and (
+        int(max_date.split("/")[-1].split()[0]) in range(28, 32)
     ):
         max_date = min_date
     return max_date.split("/")[-1], max_date
