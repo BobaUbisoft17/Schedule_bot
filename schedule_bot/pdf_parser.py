@@ -105,14 +105,21 @@ def _split_schedule_by_classes(
         big_message = ""
         message_index = 0
         count_pass = 0
-        for schedule in schedules:
+        for j in range(len(schedules)):
+            schedule = schedules[j]
             if (("классный час" in schedule or "Классный час" in schedule) and \
                 len(schedule) == 1) or len(schedule) == 1:
                 schedule *= classes_count
             if schedule == []:
                 schedule = [""] * classes_count
             elif len(schedule) < classes_count and len(schedule) != 1:
-                if big_message == "":
+                if len(schedule) < classes_count and j != 0:
+                    count = 0
+                    while len(schedule) != classes_count:
+                        if len(schedules[j - 1][count]) >= 25:
+                            schedule = schedule[:count] + [schedules[j - 1][count]] + schedule[count:]
+                        count += 1
+                elif big_message == "":
                     count = 0
                     for lesson in schedule:
                         if len(lesson) >= 25:
