@@ -126,7 +126,7 @@ async def parse40(bot: Bot) -> None:
         if glob.glob(PATH + "*.xls") == []:
             await asyncio.sleep(1)
         else:
-            await asyncio.sleep(1)
+            await asyncio.sleep(1800)
         code, status_code = await get_html(URL)
         if status_code == 200:
             bool_meaning, date, status = await get_files(
