@@ -111,7 +111,7 @@ async def get_files(schedules: List[Tuple[str, str]]) -> Tuple[bool, str, str]:
                     async with aiofiles.open(PATH + filename, "wb") \
                      as schedule:
                         await schedule.write(await response.content.read())
-            date = await get_date(filename.lower().split()[:2])
+            date = await get_date(filename.replace("_", " ").lower().split()[:2])
         else:
             return False, "", status
     return True, date, status

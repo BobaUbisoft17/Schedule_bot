@@ -61,13 +61,12 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
         link = schedule.get("href")
         if "doc" in link:
             link = URL + link
-        if "Расписан" in link or "расписан" in link:
-            link_and_schedule.append(
-                [
-                    get_date(link.split("/")[-1]).split("."),
-                    link
-                ]
-            )
+        link_and_schedule.append(
+            [
+                get_date(link.split("/")[-1]).split("."),
+                link
+            ]
+        )
     max_date = [["0", "0"], ""]
     for i in range(len(link_and_schedule)):
         if (
