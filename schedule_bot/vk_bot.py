@@ -1,7 +1,6 @@
 """Файл для работы с VK."""
 
 import asyncio
-import logging
 import os
 
 from db_users import (
@@ -35,10 +34,11 @@ from keyboard import (
     sub_keyboard,
     unsub_keyboard,
 )
+from logger import logger
 from schedule_parser14 import parse14
 from schedule_parser40 import parse40
 
-from vkbottle import BaseStateGroup, PhotoMessageUploader
+from vkbottle import BaseStateGroup, ErrorHandler, PhotoMessageUploader
 from vkbottle.bot import Bot, Message
 
 
@@ -57,7 +57,7 @@ class States_change_class(BaseStateGroup):
 bot = Bot(token=os.getenv("VKBOTTOKEN"))
 bot.loop_wrapper.add_task(parse14(bot))
 bot.loop_wrapper.add_task(parse40(bot))
-logging.basicConfig(level=logging.INFO)
+error_handler = ErrorHandler()
 
 
 @bot.on.private_message(text="Начать")
@@ -74,6 +74,7 @@ async def hi_handler(message: Message) -> None:
         keyboard=kb_select_school,
     )
     await message.answer("Выберите ваше учебное заведение")
+    logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
 
 @bot.on.private_message(
@@ -88,6 +89,7 @@ async def home_space(message: Message) -> None:
         "Переходим в главное меню",
         keyboard=await get_schedule_keyboard(message.payload),
     )
+    logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
 
 @bot.on.private_message(text="Настроить уведомления", payload=school_payloads)
@@ -110,6 +112,7 @@ async def customize_notifications(message: Message) -> None:
             "Подписаться на рассылку?",
             keyboard=await sub_keyboard(message.payload),
         )
+    logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
 
 @bot.on.private_message(
@@ -136,6 +139,7 @@ async def subscribe_newsletter(message: Message) -> None:
 мы сообщим, если появится новое расписание",
             keyboard=await settings_keyboard(message.payload),
         )
+    logger.info(f"{message.peer_id} подписался на рассылку")
 
 
 @bot.on.private_message(text="Отписаться от рассылки", payload=school_payloads)
@@ -157,6 +161,7 @@ async def unsubscribe_from_mailing_list(message: Message) -> None:
             "Вы не подписаны на рассылку",
             keyboard=await settings_keyboard(message.payload),
         )
+    logger.info(f"{message.peer_id} отписался на рассылку")
 
 
 @bot.on.private_message(text="Узнать расписание", payload=school_payloads)
@@ -168,6 +173,7 @@ async def choice_parallel(message: Message) -> None:
     появлении нового расписания, возвращает текстовое сообщение
     и клавиатуру для выбора параллели.
     """
+    logger.info(f"{message.peer_id} нажал на кнопку '{message.text}'")
     if await check_school_and_class(
         message.peer_id, message.payload.split(":")[1][1:3]
     ):
@@ -188,6 +194,7 @@ async def choice_parallel(message: Message) -> None:
                 message="Для вашего класса расписание не найдено",
                 keyboard=await get_schedule_keyboard(message.payload),
             )
+        logger.info(f"{message.peer_id} получил расписание")
     else:
         await message.answer(
             "Выберите вашу параллель",
@@ -202,6 +209,7 @@ async def change_settings(message: Message) -> None:
         "Переходим в раздел настроек",
         keyboard=await settings_keyboard(message.payload)
     )
+    logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
 
 @bot.on.private_message(text="Запоминание класса", payload=school_payloads)
@@ -221,6 +229,7 @@ async def memory_class(message: Message) -> None:
             "Хотите изменить данные о вашем классе?",
             keyboard=await change_class_keyboard(message.payload),
         )
+    logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
 
 @bot.on.private_message(text=parallel, payload=school_payloads)
@@ -236,6 +245,7 @@ async def choice_class(message: Message) -> None:
         "Выберите ваш класс",
         keyboard=await give_parallel(message.text.split()[0], message.payload),
     )
+    logger.info(f"{message.peer_id} выбрал параллель '{message.text}'")
 
 
 @bot.on.private_message(
@@ -258,6 +268,7 @@ async def del_class(message: Message) -> None:
             "Не ломайте бота, пожалуйста",
             keyboard=await settings_keyboard(message.payload),
         )
+    logger.info(f"{message.peer_id} удалил данные о своём классе")
 
 
 @bot.on.private_message(text="Назад", payload=back1)
@@ -273,6 +284,7 @@ async def back1(message: Message) -> None:
         "Переходим в меню настроек",
         keyboard=await settings_keyboard(return_payload)
     )
+    logger.info(f"{message.peer_id} вернулся в меню настроек")
 
 
 @bot.on.private_message(text="Назад", payload=back2)
@@ -287,6 +299,7 @@ async def back2(message: Message) -> None:
         "Переходим в главное меню",
         keyboard=await get_schedule_keyboard(return_payload)
     )
+    logger.info(f"{message.peer_id} вернулся в главное меню")
 
 
 @bot.on.private_message(text=all_classnames, payload=school_payloads)
@@ -316,6 +329,7 @@ async def get_schedule(message: Message) -> None:
             message="Для вашего класса расписание не найдено",
             keyboard=await get_schedule_keyboard(message.payload),
         )
+    logger.info(f"{message.peer_id} получил расписание для '{message.text}' класса")
 
 
 @bot.on.private_message(lev="Запомнить мой класс", payload=school_payloads)
@@ -343,6 +357,7 @@ async def class_memory(message: Message) -> None:
             "Не ломайте бота, пожалуйста",
             keyboard=await settings_keyboard(message.payload),
         )
+    logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
 
 @bot.on.private_message(state=States_memory_class.class_name)
@@ -357,6 +372,7 @@ async def get_class_name(message: Message) -> None:
             "Мы вас запомнили, теперь вам не нужно выбирать класс и параллель",
             keyboard=await settings_keyboard(payload),
         )
+        logger.info(f"{message.peer_id} ввёл свой класс '{message.text}' в БД")
     else:
         await bot.state_dispenser.set(
             message.peer_id, States_memory_class.class_name, payload=payload
@@ -364,6 +380,7 @@ async def get_class_name(message: Message) -> None:
         await message.answer(
             "Вы ввели некорректные данные, попробуйте ещё раз"
         )
+        logger.info(f"{message.peer_id} запутался")
 
 
 @bot.on.private_message(lev="Изменить класс", payload=school_payloads)
@@ -384,6 +401,7 @@ async def change_class(message: Message) -> None:
 в верхнем регистре без пробелов",
             keyboard=hide_keyboard,
         )
+    logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
 
 @bot.on.private_message(state=States_change_class.class_name)
@@ -398,6 +416,7 @@ async def select_class(message: Message) -> None:
             "Вы успешно изменили класс",
             keyboard=await settings_keyboard(payload)
         )
+        logger.info(f"{message.peer_id} изменил свой класс на {message.text} в БД")
     else:
         await bot.state_dispenser.set(
             message.peer_id, States_change_class.class_name, payload=payload
@@ -419,6 +438,7 @@ async def back3(message: Message) -> None:
         "Выберите вашу параллель",
         keyboard=await parallels_keyboard(return_payload)
     )
+    logger.info(f"{message.peer_id} вернулся к выбору параллели")
 
 
 @bot.on.private_message(text="Назад", payload=school_payloads)
@@ -430,6 +450,7 @@ async def back4(message: Message) -> None:
     await message.answer(
         "Переходим к выбору учебного заведения", keyboard=kb_select_school
     )
+    logger.info(f"{message.peer_id} вернулся к выбору учебного заведения")
 
 
 @bot.on.private_message()
@@ -438,6 +459,13 @@ async def other(message: Message) -> None:
     await message.answer(
         "Я вас не понимаю.\nПожалуйста, воспользуйтесь клавиатурой"
     )
+    logger.info(f"{message.peer_id} нуждается в помощи")
+
+
+@error_handler.register_undefined_error_handler
+async def error(e: Exception):
+    logger.exception(f"Произошла ошибка: {e}")
+    return True
 
 
 def create_loop() -> None:
@@ -451,6 +479,7 @@ def main() -> None:
     Функция запускает код бота, а вызывает функцию для запуска парсера,
     создвёт доп. процесс.
     """
+    logger.info("Запуск бота")
     try:
         for dir1 in ["schedule_image", "schedule_tables"]:
             for dir2 in ["school14", "school40"]:
