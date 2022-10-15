@@ -118,6 +118,8 @@ def _split_schedule_by_classes(
                     while len(schedule) != classes_count:
                         if len(schedules[j - 1][count]) >= 25:
                             schedule = schedule[:count] + [schedules[j - 1][count]] + schedule[count:]
+                        else:
+                            schedule = schedule[:count] + [schedules[j - 1][count]] + schedule[count:]
                         count += 1
                 elif big_message == "":
                     count = 0
