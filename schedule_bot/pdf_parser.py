@@ -4,7 +4,6 @@ import glob
 from typing import List, Tuple
 
 from convert_text_to_image import Schedule
-
 import pdfplumber
 
 
@@ -36,7 +35,9 @@ def _fetch_classes_schedules_from_pdf(filename: str) -> List[Schedule]:
                         ]
                     else:
                         lesson = [
-                            element for element in table[row] if element is not None
+                            element
+                            for element in table[row]
+                            if element is not None
                         ]
                     if len(lesson) > 1:
                         lessons.append(lesson)
@@ -44,7 +45,9 @@ def _fetch_classes_schedules_from_pdf(filename: str) -> List[Schedule]:
     for table in list_tables:
         classnames, *schedule = table
         schedule_bells, schedule = _get_schedule_bells(schedule)
-        classes_schedules = _split_schedule_by_classes(len(classnames), schedule)
+        classes_schedules = _split_schedule_by_classes(
+            len(classnames), schedule
+        )
         schedules.extend(
             _join_classes_schedule_with_bells(
                 classnames, schedule_bells, classes_schedules
@@ -59,7 +62,9 @@ def _get_pdf_files() -> List[str]:
     return glob.glob("schedule_tables/school14/*.pdf")
 
 
-def _get_schedule_bells(schedule: List[List[str]]) -> Tuple[List[str], List[List[str]]]:
+def _get_schedule_bells(
+    schedule: List[List[str]],
+) -> Tuple[List[str], List[List[str]]]:
     """Получение расписания перемен."""
     schedule_bells = []
     timetable = []
