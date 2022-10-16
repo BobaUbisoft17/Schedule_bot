@@ -1,5 +1,7 @@
 # our gitignores
 schedule/
+**/schedule_image/
+**/schedule_tables/
 __pycache__/
 **/*.db
 
