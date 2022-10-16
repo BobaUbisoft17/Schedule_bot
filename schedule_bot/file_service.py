@@ -3,8 +3,8 @@
 import glob
 from typing import List
 
-
-dict_of_schoolpath = {
+# Словарь для определения директории школы
+schoolpathes = {
     "14": "school14",
     "40": "school40",
 }
@@ -15,7 +15,7 @@ def get_schedule_class(school: str, classname: str) -> List[str]:
     return [
         file
         for file in glob.glob(
-            ("schedule_image/" + dict_of_schoolpath[school] + "/*.jpg")
+            ("schedule_image/" + schoolpathes[school] + "/*.jpg")
         )
         if classname in file
     ]

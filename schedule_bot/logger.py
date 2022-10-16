@@ -1,3 +1,5 @@
+"""Модуль для настройки логирования."""
+
 from loguru import logger
 
 
