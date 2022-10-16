@@ -28,7 +28,7 @@ async def check_for_innovation(filename: str) -> Tuple[bool, str]:
     pdf_files = [os.path.split(file)[-1] for file in glob.glob(PATH + "*.pdf")]
     for file in pdf_files:
         if file != filename:
-            os.remove(file)
+            os.remove(PATH + file)
             if file.split()[1] in filename:
                 return True, "Update"
             return True, "New"
