@@ -1,4 +1,4 @@
-import datetime 
+import datetime
 
 
 def get_date(string: str) -> str:

@@ -103,9 +103,7 @@ def make_image(
     return images_and_classes
 
 
-def save_img(
-    images_and_classes: List[Tuple[Image.Image, str]], school: str
-) -> None:
+def save_img(images_and_classes: List[Tuple[Image.Image, str]], school: str) -> None:
     """Функция для сохранения изображений с расписанием."""
     for element in images_and_classes:
         img, class_name = element
@@ -115,19 +113,9 @@ def save_img(
             for path in glob.glob(PATH + "school" + school + "/*.jpg")
         ]
         if filename in schedules:
-            img.save(
-                os.path.join(
-                    PATH + "school" + school + "/",
-                    class_name + "2.jpg"
-                )
-            )
+            img.save(os.path.join(PATH + "school" + school + "/", class_name + "2.jpg"))
         else:
-            img.save(
-                os.path.join(
-                    PATH + "school" + school + "/",
-                    class_name + ".jpg"
-                )
-            )
+            img.save(os.path.join(PATH + "school" + school + "/", class_name + ".jpg"))
 
 
 def get_date(date: datetime.date) -> str:

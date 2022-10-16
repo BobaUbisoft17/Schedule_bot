@@ -35,14 +35,12 @@ def read_file(file: str) -> List[Schedule]:
     rows_lessons = get_lessons(sheet)
     sorted_schedule = get_sorted_schedule(class_and_amount_cols, rows_lessons)
     schedule_bells = get_schedule_bells(sheet)
-    return group_schedule_classname_bells(
-        classes, sorted_schedule, schedule_bells
-    )
+    return group_schedule_classname_bells(classes, sorted_schedule, schedule_bells)
 
 
 def get_classnames(row_classnames: List[str]) -> List[str]:
     """Функция для получения названий классов."""
-    return [class_.upper() for class_ in row_classnames if class_ != ""] 
+    return [class_.upper() for class_ in row_classnames if class_ != ""]
 
 
 def get_class_and_amount_cols(
@@ -54,9 +52,7 @@ def get_class_and_amount_cols(
     for class_ in classnames:
         count_cols = 1
         index = row_classes.index(class_)
-        while (len(row_classes) - 1 >= index + 1) and (
-            row_classes[index + 1] == ""
-        ):
+        while (len(row_classes) - 1 >= index + 1) and (row_classes[index + 1] == ""):
             count_cols += 1
             index += 1
         class_and_amount_cols.append([class_, count_cols])
@@ -85,7 +81,7 @@ def collect_schedule(
         if lesson == "":
             lesson = "нет урока"
         parlors = []
-        for parlor in rows_schedule[i + 1][index: index + amount_cols]:
+        for parlor in rows_schedule[i + 1][index : index + amount_cols]:
             if parlor != "" and parlor != "/":
                 if type(parlor) is float:
                     parlors.append(str(int(parlor)))
@@ -104,9 +100,7 @@ def get_sorted_schedule(
     schedules_and_office = []
     index = 0
     for class_ in class_and_amount_cols:
-        schedules_and_office.append(
-            collect_schedule(schedules, class_[-1], index)
-        )
+        schedules_and_office.append(collect_schedule(schedules, class_[-1], index))
         index += class_[-1]
     return schedules_and_office
 

@@ -87,7 +87,9 @@ def _get_schedule_bells(schedule: List[List[str]]) -> Tuple[List[str], List[List
     return schedule_bells, schedule
 
 
-def _split_schedule_by_classes(classes_count: int, schedules: List[List[str]]) -> List[List[str]]:
+def _split_schedule_by_classes(
+    classes_count: int, schedules: List[List[str]]
+) -> List[List[str]]:
     """Распределение расписания по классам."""
     classes_schedules = []
     for i in range(classes_count):

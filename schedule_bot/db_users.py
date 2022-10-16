@@ -27,15 +27,12 @@ async def add_id(user_id: int) -> None:
     """
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
-            await cursor.execute(
-                "SELECT * FROM users_db WHERE id=?",
-                [user_id]
-            )
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
                 await cursor.execute(
                     "INSERT INTO users_db (id, school, class, newsletter) \
                     VALUES(?, ?, ?, ?)",
-                    [user_id, "", "", ""]
+                    [user_id, "", "", ""],
                 )
                 await db.commit()
 
@@ -49,15 +46,12 @@ async def subscribe_on_newsletter(user_id: int, school: str) -> None:
     """
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
-            await cursor.execute(
-                "SELECT * FROM users_db WHERE id=?",
-                [user_id]
-            )
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
                 await cursor.execute(
                     "INSERT INTO users_db (id, school, class, newsletter) \
                     VALUES(?, ?, ?, ?)",
-                    [user_id, "", "", school]
+                    [user_id, "", "", school],
                 )
                 await db.commit()
             else:
@@ -75,15 +69,11 @@ async def unsubscribe_on_newsletter(user_id: int) -> None:
     удаляет данные из ячейки 'newsletter'
     """
     async with aiosqlite.connect("db_users.db") as db:
-        await db.execute(
-            f"UPDATE users_db SET newsletter='' WHERE id='{user_id}'"
-        )
+        await db.execute(f"UPDATE users_db SET newsletter='' WHERE id='{user_id}'")
         await db.commit()
 
 
-async def change_user_class(
-    user_id: int, school: str = "", class_: str = ""
-) -> None:
+async def change_user_class(user_id: int, school: str = "", class_: str = "") -> None:
     """Функция запоминания класса, изменения и удаления класса.
 
     Функция в качестве аргумента принимает id, школу и класс пользователя,
@@ -91,15 +81,12 @@ async def change_user_class(
     """
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
-            await cursor.execute(
-                "SELECT * FROM users_db WHERE id=?",
-                [user_id]
-            )
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
                 await cursor.execute(
                     "INSERT INTO users_db (id, school, class, newsletter) \
                     VALUES(?, ?, ?, ?)",
-                    [user_id, school, class_, ""]
+                    [user_id, school, class_, ""],
                 )
                 await db.commit()
             else:
@@ -120,16 +107,12 @@ async def check_school_and_class(user_id: int, pld_school: str) -> bool:
     """
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
-            await cursor.execute(
-                "SELECT * FROM users_db WHERE id=?",
-                [user_id]
-            )
+            await cursor.execute("SELECT * FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
                 return False
             else:
                 await cursor.execute(
-                    "SELECT school, class FROM users_db WHERE id=?",
-                    [user_id]
+                    "SELECT school, class FROM users_db WHERE id=?", [user_id]
                 )
                 school, class_ = await cursor.fetchone()
                 if class_ != "" and pld_school == school:
@@ -146,17 +129,11 @@ async def check_class(user_id: int) -> bool:
     """
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
-            await cursor.execute(
-                "SELECT class FROM users_db WHERE id=?",
-                [user_id]
-            )
+            await cursor.execute("SELECT class FROM users_db WHERE id=?", [user_id])
             if await cursor.fetchone() is None:
                 return False
             else:
-                await cursor.execute(
-                    "SELECT class FROM users_db WHERE id=?",
-                    [user_id]
-                )
+                await cursor.execute("SELECT class FROM users_db WHERE id=?", [user_id])
                 if (await cursor.fetchone())[0] != "":
                     return True
                 else:
@@ -168,8 +145,7 @@ async def get_school_and_class(user_id: int) -> Tuple[str, str]:
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
             await cursor.execute(
-                "SELECT school, class FROM users_db WHERE id=?",
-                [user_id]
+                "SELECT school, class FROM users_db WHERE id=?", [user_id]
             )
             return await cursor.fetchone()
 
@@ -179,8 +155,7 @@ async def check_user_subscription(user_id: int) -> bool:
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
             await cursor.execute(
-                "SELECT newsletter FROM users_db WHERE id=?",
-                [user_id]
+                "SELECT newsletter FROM users_db WHERE id=?", [user_id]
             )
             if (await cursor.fetchone())[0] == "":
                 return False
@@ -193,8 +168,5 @@ async def get_users_id(school: str) -> List[int]:
        о новом/обновлённом расписании."""
     async with aiosqlite.connect("db_users.db") as db:
         async with db.cursor() as cursor:
-            await cursor.execute(
-                "SELECT id FROM users_db WHERE newsletter=?",
-                [school]
-            )
+            await cursor.execute("SELECT id FROM users_db WHERE newsletter=?", [school])
             return [value[0] for value in await cursor.fetchall()]
