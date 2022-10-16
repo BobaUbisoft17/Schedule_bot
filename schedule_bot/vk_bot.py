@@ -37,7 +37,6 @@ from keyboard import (
 from logger import logger
 from schedule_parser14 import parse14
 from schedule_parser40 import parse40
-
 from vkbottle import BaseStateGroup, PhotoMessageUploader
 from vkbottle.bot import Bot, Message
 
@@ -114,7 +113,9 @@ async def customize_notifications(message: Message) -> None:
     logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
 
-@bot.on.private_message(text="Подписаться на рассылку", payload=school_payloads)
+@bot.on.private_message(
+    text="Подписаться на рассылку", payload=school_payloads
+)
 async def subscribe_newsletter(message: Message) -> None:
     """Функция для ответа на сообщение 'Подписаться на рассылку'.
 
@@ -124,7 +125,8 @@ async def subscribe_newsletter(message: Message) -> None:
     """
     if await check_user_subscription(message.peer_id):
         await message.answer(
-            "Вы уже подписаны", keyboard=await settings_keyboard(message.payload)
+            "Вы уже подписаны",
+            keyboard=await settings_keyboard(message.payload),
         )
     else:
         await subscribe_on_newsletter(
@@ -202,7 +204,8 @@ async def choice_parallel(message: Message) -> None:
 async def change_settings(message: Message) -> None:
     """Функция для перехода в раздел настроек."""
     await message.answer(
-        "Переходим в раздел настроек", keyboard=await settings_keyboard(message.payload)
+        "Переходим в раздел настроек",
+        keyboard=await settings_keyboard(message.payload),
     )
     logger.info(f"{message.peer_id} нажал кнопку '{message.text}'")
 
@@ -243,7 +246,9 @@ async def choice_class(message: Message) -> None:
     logger.info(f"{message.peer_id} выбрал параллель '{message.text}'")
 
 
-@bot.on.private_message(text="Удалить данные о моём классе", payload=school_payloads)
+@bot.on.private_message(
+    text="Удалить данные о моём классе", payload=school_payloads
+)
 async def del_class(message: Message) -> None:
     """Функция для удаления данных о классе пользователя из БД.
 
@@ -273,7 +278,8 @@ async def back1(message: Message) -> None:
     payload = message.payload
     return_payload = payload[:-3] + payload[-2:]
     await message.answer(
-        "Переходим в меню настроек", keyboard=await settings_keyboard(return_payload)
+        "Переходим в меню настроек",
+        keyboard=await settings_keyboard(return_payload),
     )
     logger.info(f"{message.peer_id} вернулся в меню настроек")
 
@@ -287,7 +293,8 @@ async def back2(message: Message) -> None:
     payload = message.payload
     return_payload = payload[:-3] + payload[-2:]
     await message.answer(
-        "Переходим в главное меню", keyboard=await get_schedule_keyboard(return_payload)
+        "Переходим в главное меню",
+        keyboard=await get_schedule_keyboard(return_payload),
     )
     logger.info(f"{message.peer_id} вернулся в главное меню")
 
@@ -305,7 +312,8 @@ async def get_schedule(message: Message) -> None:
     school = payload.split(":")[1][1:3]
     file_path = get_schedule_class(school, message.text)
     photo = [
-        await PhotoMessageUploader(bot.api).upload(file) for file in sorted(file_path)
+        await PhotoMessageUploader(bot.api).upload(file)
+        for file in sorted(file_path)
     ]
     if len(photo) != 0:
         await message.answer(
@@ -318,7 +326,9 @@ async def get_schedule(message: Message) -> None:
             message="Для вашего класса расписание не найдено",
             keyboard=await get_schedule_keyboard(message.payload),
         )
-    logger.info(f"{message.peer_id} получил расписание для '{message.text}' класса")
+    logger.info(
+        f"{message.peer_id} получил расписание для '{message.text}' класса"
+    )
 
 
 @bot.on.private_message(lev="Запомнить мой класс", payload=school_payloads)
@@ -331,7 +341,9 @@ async def class_memory(message: Message) -> None:
     """
     if not await check_class(message.peer_id):
         await bot.state_dispenser.set(
-            message.peer_id, States_memory_class.class_name, payload=message.payload
+            message.peer_id,
+            States_memory_class.class_name,
+            payload=message.payload,
         )
         await message.answer(
             "Введите номер вашего класса и букву в \
@@ -364,7 +376,9 @@ async def get_class_name(message: Message) -> None:
         await bot.state_dispenser.set(
             message.peer_id, States_memory_class.class_name, payload=payload
         )
-        await message.answer("Вы ввели некорректные данные, попробуйте ещё раз")
+        await message.answer(
+            "Вы ввели некорректные данные, попробуйте ещё раз"
+        )
         logger.info(f"{message.peer_id} запутался")
 
 
@@ -377,7 +391,9 @@ async def change_class(message: Message) -> None:
     """
     if await check_class(message.peer_id):
         await bot.state_dispenser.set(
-            message.peer_id, States_change_class.class_name, payload=message.payload
+            message.peer_id,
+            States_change_class.class_name,
+            payload=message.payload,
         )
         await message.answer(
             "Введите номер вашего класса и букву \
@@ -396,14 +412,19 @@ async def select_class(message: Message) -> None:
         await change_user_class(message.peer_id, school, message.text)
         await bot.state_dispenser.delete(message.peer_id)
         await message.answer(
-            "Вы успешно изменили класс", keyboard=await settings_keyboard(payload)
+            "Вы успешно изменили класс",
+            keyboard=await settings_keyboard(payload),
         )
-        logger.info(f"{message.peer_id} изменил свой класс на {message.text} в БД")
+        logger.info(
+            f"{message.peer_id} изменил свой класс на {message.text} в БД"
+        )
     else:
         await bot.state_dispenser.set(
             message.peer_id, States_change_class.class_name, payload=payload
         )
-        await message.answer("Вы ввели некорректные данные, попробуйте ещё раз")
+        await message.answer(
+            "Вы ввели некорректные данные, попробуйте ещё раз"
+        )
 
 
 @bot.on.private_message(text="Назад", payload=back3)
@@ -415,7 +436,8 @@ async def back3(message: Message) -> None:
     payload = message.payload
     return_payload = payload[:-3] + payload[-2:]
     await message.answer(
-        "Выберите вашу параллель", keyboard=await parallels_keyboard(return_payload)
+        "Выберите вашу параллель",
+        keyboard=await parallels_keyboard(return_payload),
     )
     logger.info(f"{message.peer_id} вернулся к выбору параллели")
 
@@ -435,7 +457,9 @@ async def back4(message: Message) -> None:
 @bot.on.private_message()
 async def other(message: Message) -> None:
     """Функция для обработки сообщений, на которые не настроены фильтры."""
-    await message.answer("Я вас не понимаю.\nПожалуйста, воспользуйтесь клавиатурой")
+    await message.answer(
+        "Я вас не понимаю.\nПожалуйста, воспользуйтесь клавиатурой"
+    )
     logger.info(f"{message.peer_id} нуждается в помощи")
 
 
