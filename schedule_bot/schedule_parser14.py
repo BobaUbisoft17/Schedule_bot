@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from vkbottle.bot import Bot
 
 from convert_text_to_image import del_img, make_image, save_img
+from logger import logger
 from mailing import mailing_list
 from pdf_parser import get_classes_schedules
 from utils import get_date
@@ -49,7 +50,9 @@ async def get_html(url: str) -> Tuple[str, int]:
 async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
     """Получение ссылки на файл и названия файла из HTML-кода страницы."""
     soup = BeautifulSoup(html_code, "lxml")
-    html_schedules = soup.find_all("span", style="font-family: 'book antiqua', palatino; font-size: 14pt;")
+    html_schedules = soup.find_all(
+        "span", style="font-family: 'book antiqua', palatino; font-size: 14pt;"
+    )
     if soup.find_all("a", class_="at_url") == []:
         schedules = []
         for schedule in html_schedules:
@@ -61,12 +64,7 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
         link = schedule.get("href")
         if "doc" in link:
             link = URL + link
-        link_and_schedule.append(
-            [
-                get_date(link.split("/")[-1]).split("."),
-                link
-            ]
-        )
+        link_and_schedule.append([get_date(link.split("/")[-1]).split("."), link])
     max_date = [["0", "0"], ""]
     for i in range(len(link_and_schedule)):
         if (
@@ -82,9 +80,7 @@ async def get_link_and_filename(html_code: str) -> Tuple[str, str]:
     return filename, link
 
 
-async def get_file(
-    filename_and_link: Tuple[str, str]
-) -> Tuple[bool, str, str]:
+async def get_file(filename_and_link: Tuple[str, str]) -> Tuple[bool, str, str]:
     """Сохранение файла с расписанием."""
     filename, link = (i for i in filename_and_link)
     bool_meaning, status = await check_for_innovation(filename)
@@ -99,6 +95,7 @@ async def get_file(
         return False, "", status
 
 
+@logger.catch
 async def parse14(bot: Bot) -> None:
     """Проверка ответа сервера и запись данных в бд."""
     while True:

@@ -1,4 +1,5 @@
-from loguru import logger 
+from loguru import logger
+
 
 logger.add(
     encoding="u8",
@@ -7,5 +8,6 @@ logger.add(
     rotation="1 week",
     compression="zip",
     backtrace=False,
-    level="INFO"
+    enqueue=True,
+    level="INFO",
 )

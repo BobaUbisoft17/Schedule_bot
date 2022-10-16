@@ -4,7 +4,6 @@ import glob
 from typing import List, Tuple
 
 from convert_text_to_image import Schedule
-from logger import logger
 
 import pdfplumber
 
@@ -20,47 +19,39 @@ def get_classes_schedules() -> List[Schedule]:
 
 def _fetch_classes_schedules_from_pdf(filename: str) -> List[Schedule]:
     """Получение расписаний классов из .pdf файла."""
-    try:
-        schedules = []
-        with pdfplumber.open(filename) as pdf:
-            list_tables = []
-            pages = pdf.pages
-            for page in pages:
-                tables = page.extract_tables()
-                for table in tables:
-                    lessons = []
-                    for row in range(len(table)):
-                        if row == 0:
-                            lesson = [
-                                element
-                                for element in table[row]
-                                if element != "" and element is not None
-                            ]
-                        else:
-                            lesson = [
-                                element
-                                for element in table[row]
-                                if element is not None
-                            ]
-                        if len(lesson) > 1:
-                            lessons.append(lesson)
-                    list_tables.append(lessons)
-        for table in list_tables:
-            classnames, *schedule = table
-            schedule_bells, schedule = _get_schedule_bells(schedule)
-            classes_schedules = _split_schedule_by_classes(
-                                    len(classnames),
-                                    schedule
-                                )
-            schedules.extend(
-                _join_classes_schedule_with_bells(
-                    classnames, schedule_bells, classes_schedules
-                )
+    schedules = []
+    with pdfplumber.open(filename) as pdf:
+        list_tables = []
+        pages = pdf.pages
+        for page in pages:
+            tables = page.extract_tables()
+            for table in tables:
+                lessons = []
+                for row in range(len(table)):
+                    if row == 0:
+                        lesson = [
+                            element
+                            for element in table[row]
+                            if element != "" and element is not None
+                        ]
+                    else:
+                        lesson = [
+                            element for element in table[row] if element is not None
+                        ]
+                    if len(lesson) > 1:
+                        lessons.append(lesson)
+                list_tables.append(lessons)
+    for table in list_tables:
+        classnames, *schedule = table
+        schedule_bells, schedule = _get_schedule_bells(schedule)
+        classes_schedules = _split_schedule_by_classes(len(classnames), schedule)
+        schedules.extend(
+            _join_classes_schedule_with_bells(
+                classnames, schedule_bells, classes_schedules
             )
+        )
 
-        return schedules
-    except Exception as e:
-        logger.info(f"Случилась ошибка {e}")
+    return schedules
 
 
 def _get_pdf_files() -> List[str]:
@@ -96,7 +87,7 @@ def _get_schedule_bells(schedule: List[List[str]]) -> Tuple[List[str], List[List
                 true_bell_schedule.append(time)
             true_bell.append(".".join(list(true_bell_schedule)))
         schedule_bells[i] = "-".join(list(true_bell))
-    
+
     return schedule_bells, timetable
 
 
@@ -112,8 +103,10 @@ def _split_schedule_by_classes(
         count_pass = 0
         for j in range(len(schedules)):
             schedule = schedules[j]
-            if (("классный час" in schedule or "Классный час" in schedule) and \
-                len(schedule) == 1) or len(schedule) == 1:
+            if (
+                ("классный час" in schedule or "Классный час" in schedule)
+                and len(schedule) == 1
+            ) or len(schedule) == 1:
                 schedule *= classes_count
             if schedule == []:
                 schedule = [""] * classes_count
@@ -122,9 +115,17 @@ def _split_schedule_by_classes(
                     count = 0
                     while len(schedule) != classes_count:
                         if len(schedules[j - 1][count]) >= 25:
-                            schedule = schedule[:count] + [schedules[j - 1][count]] + schedule[count:]
+                            schedule = (
+                                schedule[:count]
+                                + [schedules[j - 1][count]]
+                                + schedule[count:]
+                            )
                         else:
-                            schedule = schedule[:count] + [schedules[j - 1][count]] + schedule[count:]
+                            schedule = (
+                                schedule[:count]
+                                + [schedules[j - 1][count]]
+                                + schedule[count:]
+                            )
                         count += 1
                 elif big_message == "":
                     count = 0
@@ -142,7 +143,7 @@ def _split_schedule_by_classes(
                             schedule[index].lower()
                             for _ in range(classes_count - count)
                         ]
-                        + schedule[index + 1:]
+                        + schedule[index + 1 :]
                     )
                 else:
                     schedule = (

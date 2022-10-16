@@ -11,6 +11,7 @@ import bs4
 from vkbottle.bot import Bot
 
 from convert_text_to_image import del_img, make_image, save_img
+from logger import logger
 from mailing import mailing_list
 from xls_parser import get_classes_schedules
 
@@ -65,9 +66,7 @@ async def get_schedule(list_schedules: bs4.element.ResultSet) -> Tuple[str, str]
     max_date = sorted(
         schedules, key=lambda x: int(x.split("/")[-1].split()[0]), reverse=True
     )[0]
-    min_date = sorted(
-        schedules, key=lambda x: int(x.split("/")[-1].split()[0])
-    )[0]
+    min_date = sorted(schedules, key=lambda x: int(x.split("/")[-1].split()[0]))[0]
     if int(min_date.split("/")[-1].split()[0]) in range(1, 6) and (
         int(max_date.split("/")[-1].split()[0]) in range(28, 32)
     ):
@@ -101,15 +100,12 @@ async def get_files(schedules: List[Tuple[str, str]]) -> Tuple[bool, str, str]:
     """Сохранение файлов с расписанием."""
     for schedule in schedules:
         filename, link = schedule
-        bool_meaning, status = await check_for_innovation(
-                                    filename.split("/")[-1]
-                                )
+        bool_meaning, status = await check_for_innovation(filename.split("/")[-1])
         if bool_meaning:
             connector = aiohttp.TCPConnector(force_close=True)
             async with aiohttp.ClientSession(connector=connector) as session:
                 async with session.get(link) as response:
-                    async with aiofiles.open(PATH + filename, "wb") \
-                     as schedule:
+                    async with aiofiles.open(PATH + filename, "wb") as schedule:
                         await schedule.write(await response.content.read())
             date = await get_date(filename.replace("_", " ").lower().split()[:2])
         else:
@@ -117,6 +113,7 @@ async def get_files(schedules: List[Tuple[str, str]]) -> Tuple[bool, str, str]:
     return True, date, status
 
 
+@logger.catch
 async def parse40(bot: Bot) -> None:
     """Проверка ответа сервера, рендер изображений и рассылка."""
     while True:
