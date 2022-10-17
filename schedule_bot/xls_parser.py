@@ -4,7 +4,6 @@ import glob
 from typing import List, Tuple
 
 from convert_text_to_image import Schedule
-
 import xlrd
 
 
@@ -35,7 +34,9 @@ def read_file(file: str) -> List[Schedule]:
     rows_lessons = get_lessons(sheet)
     sorted_schedule = get_sorted_schedule(class_and_amount_cols, rows_lessons)
     schedule_bells = get_schedule_bells(sheet)
-    return group_schedule_classname_bells(classes, sorted_schedule, schedule_bells)
+    return group_schedule_classname_bells(
+        classes, sorted_schedule, schedule_bells
+    )
 
 
 def get_classnames(row_classnames: List[str]) -> List[str]:
@@ -52,7 +53,9 @@ def get_class_and_amount_cols(
     for class_ in classnames:
         count_cols = 1
         index = row_classes.index(class_)
-        while (len(row_classes) - 1 >= index + 1) and (row_classes[index + 1] == ""):
+        while (len(row_classes) - 1 >= index + 1) and (
+            row_classes[index + 1] == ""
+        ):
             count_cols += 1
             index += 1
         class_and_amount_cols.append([class_, count_cols])
@@ -63,8 +66,28 @@ def get_lessons(sheet: xlrd.sheet.Sheet) -> List[List[str]]:
     """Функция для получения строк с расписанием."""
     schedules = []
     for row in range(3, sheet.nrows):
-        schedules.append(sheet.row_values(row)[3:])
+        if (row <= 7) or (row > 7 and len(set(sheet.row_values(row)[3:])) != 1):
+            schedules.append(sheet.row_values(row)[3:])
     return schedules
+
+
+def get_rows_length(rows_length: int) -> int:
+    """Получение диапозона для цикла."""
+    if rows_length % 2 == 0:
+        return rows_length
+    return rows_length - 1
+
+
+def get_parlors(row_schedule: List[str]) -> List[str]:
+    """Получение кабинета для предмета."""
+    parlors = []
+    for parlor in row_schedule:
+        if parlor != "" and parlor != "/":
+            if type(parlor) is float:
+                parlors.append(str(int(parlor)))
+            else:
+                parlors.append(parlor)
+    return parlors
 
 
 def collect_schedule(
@@ -72,24 +95,15 @@ def collect_schedule(
 ) -> List[str]:
     """Функция для сборки расписания по классам."""
     schedule = []
-    if len(rows_schedule) % 2 == 0:
-        len_rows = len(rows_schedule)
-    else:
-        len_rows = len(rows_schedule) - 1
+    len_rows = get_rows_length(len(rows_schedule))
     for i in range(0, len_rows, 2):
         lesson = rows_schedule[i][index]
-        if lesson == "":
+        if lesson == "" or lesson == " ":
             lesson = "нет урока"
-        parlors = []
-        for parlor in rows_schedule[i + 1][index : index + amount_cols]:
-            if parlor != "" and parlor != "/":
-                if type(parlor) is float:
-                    parlors.append(str(int(parlor)))
-                else:
-                    parlors.append(parlor)
+        parlors = get_parlors(
+            rows_schedule[i + 1][index : index + amount_cols]
+        )
         schedule.append(f"{lesson.lower()} {', '.join(parlors)}")
-    if len(rows_schedule) % 2 != 0:
-        schedule.append("нет урока")
     return schedule
 
 
@@ -100,7 +114,9 @@ def get_sorted_schedule(
     schedules_and_office = []
     index = 0
     for class_ in class_and_amount_cols:
-        schedules_and_office.append(collect_schedule(schedules, class_[-1], index))
+        schedules_and_office.append(
+            collect_schedule(schedules, class_[-1], index)
+        )
         index += class_[-1]
     return schedules_and_office
 
