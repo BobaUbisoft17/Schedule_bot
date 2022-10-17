@@ -127,7 +127,6 @@ async def update_schedule(bot: Bot, html_code: str) -> None:
     )
     if bool_meaning:
         schedules = get_classes_schedules()
-        del_img("40")
         save_img(collect_images(schedules, date.split()), "40")
         await mailing_list(bot, status, "40")
 

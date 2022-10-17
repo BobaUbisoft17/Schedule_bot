@@ -120,7 +120,6 @@ async def update_schedule(bot: Bot, html_code: str) -> None:
     )
     if bool_meaning:
         schedules = get_classes_schedules()
-        del_img("14")
         schedule_name = get_date(filename)
         save_img(
             collect_images(

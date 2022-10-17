@@ -127,6 +127,7 @@ def save_img(
     school: str
 ) -> None:
     """Функция для сохранения изображений с расписанием."""
+    del_img(school)
     for element in images_and_classes:
         img, class_name = element
         filename = f"{class_name}.jpg"
