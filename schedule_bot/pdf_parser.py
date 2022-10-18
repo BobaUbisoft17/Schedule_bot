@@ -108,10 +108,12 @@ def _split_schedule_by_classes(
         count_pass = 0
         for j in range(len(schedules)):
             schedule = schedules[j]
+            if sum([1 for lesson in schedule if lesson != ""]) == classes_count:
+                schedule = [lesson for lesson in schedule if lesson != ""]
             if (
                 ("классный час" in schedule or "Классный час" in schedule)
                 and len(schedule) == 1
-            ) or len(schedule) == 1:
+            ) or len(set(schedule)) == 1:
                 schedule *= classes_count
             if schedule == []:
                 schedule = [""] * classes_count
